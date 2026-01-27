@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RegisterRequest;
 use App\Mail\OtpMail;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
@@ -22,14 +23,9 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request): JsonResponse
+    public function store(RegisterRequest $request): JsonResponse
     {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
-
+        // البيانات validated تلقائيًا
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -40,7 +36,7 @@ class RegisteredUserController extends Controller
 
         $otp_code = rand(100000, 999999);
 
-        $otp = Otp::create([
+        Otp::create([
             'user_id' => $user->id,
             'otp_code' => $otp_code,
             'type' => 'register',
@@ -48,8 +44,6 @@ class RegisteredUserController extends Controller
         ]);
 
         Mail::to($user->email)->send(new OtpMail($otp_code));
-
-        // Auth::login($user); // Disable auto-login for API with OTP verification
 
         return response()->json([
             'message' => 'User registered successfully. Please verify your email with the OTP sent.',
