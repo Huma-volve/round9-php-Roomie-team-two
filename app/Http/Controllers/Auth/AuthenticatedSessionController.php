@@ -18,11 +18,7 @@ class AuthenticatedSessionController extends Controller
      */
     public function login(LoginRequest $request): JsonResponse
     {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
-
+        // البيانات validated تلقائيًا من LoginRequest
         $user = User::where('email', $request->email)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
@@ -33,7 +29,6 @@ class AuthenticatedSessionController extends Controller
             return response()->json(['message' => 'Please verify your email first.'], 403);
         }
 
-        // Generate API token
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -42,7 +37,6 @@ class AuthenticatedSessionController extends Controller
             'token_type' => 'Bearer',
         ]);
     }
-
     /**
      * Destroy an authenticated session.
      */
