@@ -6,11 +6,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-
+use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory,HasApiTokens, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -20,10 +20,12 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
-        'title',
+        'job_title',
         'aboutme',
         'max_budget',
         'address',
+        'gender',
+        'image',
         'email_verified_at',
         'password',
     ];
@@ -64,5 +66,28 @@ class User extends Authenticatable
     public function reviews()
     {
         return $this->hasMany(Review::class);
+    }
+    /**
+     * Get the housing preferences for the user.
+     */
+    public function housingPreferences()
+    {
+        return $this->hasMany(HousingPreference::class);
+    }
+
+    /**
+     * Get the verification for the user.
+     */
+    public function verification()
+    {
+        return $this->hasOne(UserVerification::class);
+    }
+
+    /**
+     * Get the lifestyle trait for the user.
+     */
+    public function lifestyleTrait()
+    {
+        return $this->hasOne(LifestyleTrait::class);
     }
 }
