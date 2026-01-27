@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\ResendOtpRequest;
+use App\Http\Requests\Auth\VerifyOtpRequest;
+use App\Http\Requests\Auth\VerifyResetOtpRequest;
 use App\Mail\OtpMail;
 use App\Models\Otp;
 use App\Models\User;
@@ -12,13 +15,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class OtpController extends Controller
 {
-    public function verify(Request $request)
+    public function verify(VerifyOtpRequest $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'otp_code' => 'required',
-        ]);
-
         $user = User::where('email', $request->email)->firstOrFail();
 
         $otp = Otp::where('user_id', $user->id)
@@ -40,13 +38,8 @@ class OtpController extends Controller
 
 
 
-    public function verifyResetOtp(Request $request): JsonResponse
+    public function verifyResetOtp(VerifyResetOtpRequest $request): JsonResponse
     {
-        $request->validate([
-            'email' => 'required|email',
-            'otp_code' => 'required',
-        ]);
-
         $user = User::where('email', $request->email)->firstOrFail();
 
         $otp = Otp::where('user_id', $user->id)
@@ -62,42 +55,31 @@ class OtpController extends Controller
             ], 422);
         }
 
-        // OTP صحيح → احذف الـ OTP
         $otp->delete();
 
-        // إنشاء Token لإعادة تعيين كلمة المرور
         $token = \Illuminate\Support\Facades\Password::createToken($user);
 
-        // السماح للمستخدم بتغيير الباسورد
         return response()->json([
             'next_step' => 'reset_password',
             'message' => 'OTP verified! You can now reset your password.',
             'email' => $user->email,
-            'token' => $token, // Return token for reset
+            'token' => $token,
         ]);
     }
 
-    public function resendOtp(Request $request): JsonResponse
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'type' => 'required|string', // 'register' أو 'reset_password'
-        ]);
 
+    public function resendOtp(ResendOtpRequest $request): JsonResponse
+    {
         $user = User::where('email', $request->email)->first();
 
         if (!$user) {
-            return response()->json([
-                'message' => 'User not found.'
-            ], 404);
+            return response()->json(['message' => 'User not found.'], 404);
         }
 
-        // احذف أي OTP قديمة لنفس النوع
         Otp::where('user_id', $user->id)
             ->where('type', $request->type)
             ->delete();
 
-        // Generate OTP جديد
         $otp_code = rand(100000, 999999);
 
         $otp = Otp::create([
@@ -107,7 +89,6 @@ class OtpController extends Controller
             'expires_at' => now()->addMinutes(5),
         ]);
 
-        // Send OTP email
         Mail::to($user->email)->send(new OtpMail($otp_code));
 
         return response()->json([

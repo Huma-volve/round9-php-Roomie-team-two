@@ -2,10 +2,9 @@
 
 namespace App\Http\Requests\Auth;
 
-use Illuminate\Validation\Rules;
 use Illuminate\Foundation\Http\FormRequest;
 
-class ResetPasswordRequest extends FormRequest
+class ResendOtpRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,20 +22,18 @@ class ResetPasswordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'token' => ['required'],
             'email' => ['required', 'email'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'type' => ['required', 'string', 'in:register,reset_password'],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'token.required' => 'Token is required.',
             'email.required' => 'Email is required.',
-            'email.email' => 'Email must be a valid email address.',
-            'password.required' => 'Password is required.',
-            'password.confirmed' => 'Password confirmation does not match.',
+            'email.email' => 'Invalid email format.',
+            'type.required' => 'OTP type is required.',
+            'type.in' => 'Type must be either register or reset_password.',
         ];
     }
 }
