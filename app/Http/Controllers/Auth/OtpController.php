@@ -3,28 +3,35 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\ResendOtpRequest;
+use App\Http\Requests\Auth\VerifyOtpRequest;
+use App\Http\Requests\Auth\VerifyResetOtpRequest;
 use App\Mail\OtpMail;
 use App\Models\Otp;
 use App\Models\User;
+use App\Services\OtpService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class OtpController extends Controller
 {
-    public function verify(Request $request)
+    public function verify(VerifyOtpRequest $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'otp_code' => 'required',
-        ]);
-
         $user = User::where('email', $request->email)->firstOrFail();
+
+        if ($user->is_verified) {
+            return response()->json([
+                'message' => 'Email already verified.'
+            ], 409);
+        }
 
         $otp = Otp::where('user_id', $user->id)
             ->where('otp_code', $request->otp_code)
+            ->where('type', 'register')
             ->where('expires_at', '>', now())
             ->first();
+
 
         if (!$otp) {
             return response()->json(['message' => 'Invalid or expired OTP'], 422);
@@ -35,18 +42,13 @@ class OtpController extends Controller
 
         $otp->delete();
 
-        return response()->json(['message' => 'Email verified successfully']);
+        return response()->json(['message' => 'Email verified successfully'], 200);
     }
 
 
 
-    public function verifyResetOtp(Request $request): JsonResponse
+    public function verifyResetOtp(VerifyResetOtpRequest $request): JsonResponse
     {
-        $request->validate([
-            'email' => 'required|email',
-            'otp_code' => 'required',
-        ]);
-
         $user = User::where('email', $request->email)->firstOrFail();
 
         $otp = Otp::where('user_id', $user->id)
@@ -62,58 +64,30 @@ class OtpController extends Controller
             ], 422);
         }
 
-        // OTP صحيح → احذف الـ OTP
         $otp->delete();
 
-        // إنشاء Token لإعادة تعيين كلمة المرور
         $token = \Illuminate\Support\Facades\Password::createToken($user);
 
-        // السماح للمستخدم بتغيير الباسورد
         return response()->json([
             'next_step' => 'reset_password',
             'message' => 'OTP verified! You can now reset your password.',
             'email' => $user->email,
-            'token' => $token, // Return token for reset
+            'token' => $token,
         ]);
     }
 
-    public function resendOtp(Request $request): JsonResponse
+    public function resendOtp(ResendOtpRequest $request): JsonResponse
     {
-        $request->validate([
-            'email' => 'required|email',
-            'type' => 'required|string', // 'register' أو 'reset_password'
-        ]);
+        $user = User::where('email', $request->email)->firstOrFail();
 
-        $user = User::where('email', $request->email)->first();
-
-        if (!$user) {
-            return response()->json([
-                'message' => 'User not found.'
-            ], 404);
-        }
-
-        // احذف أي OTP قديمة لنفس النوع
-        Otp::where('user_id', $user->id)
-            ->where('type', $request->type)
-            ->delete();
-
-        // Generate OTP جديد
-        $otp_code = rand(100000, 999999);
-
-        $otp = Otp::create([
-            'user_id' => $user->id,
-            'otp_code' => $otp_code,
-            'type' => $request->type,
-            'expires_at' => now()->addMinutes(5),
-        ]);
-
-        // Send OTP email
-        Mail::to($user->email)->send(new OtpMail($otp_code));
+        OtpService::send($user, $request->type);
 
         return response()->json([
             'message' => 'OTP resent successfully.',
             'email' => $user->email,
-            'next_step' => $request->type === 'register' ? 'verify_otp' : 'verify_otp_reset',
+            'next_step' => $request->type === 'register'
+                ? 'verify_otp'
+                : 'verify_otp_reset',
         ]);
     }
 }
