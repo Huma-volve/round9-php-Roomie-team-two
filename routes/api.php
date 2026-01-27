@@ -7,8 +7,8 @@ use Illuminate\Support\Facades\Route;
 
 
 
-Route::middleware('auth:sanctum')->group(function () {
 
+Route::middleware('auth:sanctum')->group(function () {
     Route::post('booking/calculate-price', [BookingController::class, 'calculateTotalPrice']);
     Route::post('bookings', [BookingController::class, 'store']);
     Route::get('bookings', [BookingController::class, 'getUserBookings']);

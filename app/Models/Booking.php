@@ -35,7 +35,7 @@ class Booking extends Model
     {
         return $this->belongsTo(Room::class);
     }
-    public function guest()
+    public function guests()
     {
         return $this->hasMany(Guest::class);
     }
