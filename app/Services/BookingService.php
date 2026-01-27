@@ -93,6 +93,7 @@ class BookingService
                     'user_id' => auth()->id(),
                     'property_id' => $request->property_id,
                     'room_id' => $request->room_id ?? null,
+                    'phone' => $request->phone,
                     'check_in' => $checkIn,
                     'check_out' => $checkOut,
                     'total_price' => $pricing_data['total_price'],
@@ -116,7 +117,6 @@ class BookingService
                         'phone' => $guest['phone'] ?? null
                     ]);
                 }
-
                 return $booking;
             });
 

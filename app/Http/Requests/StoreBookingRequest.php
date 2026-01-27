@@ -24,6 +24,7 @@ class StoreBookingRequest extends FormRequest
         return [
             'property_id' => ['required', 'integer', 'exists:properties,id'],
             'room_id' => ['nullable', 'integer', 'exists:rooms,id'],
+            'phone' => ['required', 'string', 'max:20'],
             'check_in' => ['required', 'date', 'after_or_equal:today'],
             'check_out' => ['required', 'date', 'after:check_in'],
             'special_request' => ['nullable', 'string', 'max:1000'],
