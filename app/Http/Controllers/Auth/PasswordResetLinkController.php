@@ -29,13 +29,21 @@ class PasswordResetLinkController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (!$user) {
-            throw ValidationException::withMessages([
-                'email' => ['User with this email does not exist.']
-            ]);
+            return apiResponse(
+                null,
+                'User with this email does not exist.',
+                false,
+                404
+            );
         }
 
         OtpService::send($user, 'reset_password');
 
-        return response()->json(['status' => 'OTP sent successfully.']);
+        return apiResponse(
+            null,
+            'OTP sent successfully.',
+            true,
+            200
+        );
     }
 }

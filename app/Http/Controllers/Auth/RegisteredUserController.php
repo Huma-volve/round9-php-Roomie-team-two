@@ -26,7 +26,6 @@ class RegisteredUserController extends Controller
      */
     public function store(RegisterRequest $request): JsonResponse
     {
-        // البيانات validated تلقائيًا
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -37,9 +36,13 @@ class RegisteredUserController extends Controller
 
         OtpService::send($user, 'register');
 
-        return response()->json([
-            'message' => 'User registered successfully. Please verify your email with the OTP sent.',
-            'email' => $user->email,
-        ]);
+        return apiResponse(
+            [
+                'email' => $user->email,
+            ],
+            'User registered successfully. Please verify your email with the OTP sent.',
+            true,
+            201
+        );
     }
 }
