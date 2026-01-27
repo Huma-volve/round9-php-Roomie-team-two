@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use App\Models\Otp;
+use App\Services\OtpService;
 use Illuminate\Support\Facades\Mail;
 
 class RegisteredUserController extends Controller
@@ -34,16 +35,7 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
-        $otp_code = rand(100000, 999999);
-
-        Otp::create([
-            'user_id' => $user->id,
-            'otp_code' => $otp_code,
-            'type' => 'register',
-            'expires_at' => now()->addMinutes(5),
-        ]);
-
-        Mail::to($user->email)->send(new OtpMail($otp_code));
+        OtpService::send($user, 'register');
 
         return response()->json([
             'message' => 'User registered successfully. Please verify your email with the OTP sent.',

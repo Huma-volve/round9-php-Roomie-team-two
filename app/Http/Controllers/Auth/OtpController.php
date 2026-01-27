@@ -9,6 +9,7 @@ use App\Http\Requests\Auth\VerifyResetOtpRequest;
 use App\Mail\OtpMail;
 use App\Models\Otp;
 use App\Models\User;
+use App\Services\OtpService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -19,10 +20,18 @@ class OtpController extends Controller
     {
         $user = User::where('email', $request->email)->firstOrFail();
 
+        if ($user->is_verified) {
+            return response()->json([
+                'message' => 'Email already verified.'
+            ], 409);
+        }
+
         $otp = Otp::where('user_id', $user->id)
             ->where('otp_code', $request->otp_code)
+            ->where('type', 'register')
             ->where('expires_at', '>', now())
             ->first();
+
 
         if (!$otp) {
             return response()->json(['message' => 'Invalid or expired OTP'], 422);
@@ -33,7 +42,7 @@ class OtpController extends Controller
 
         $otp->delete();
 
-        return response()->json(['message' => 'Email verified successfully']);
+        return response()->json(['message' => 'Email verified successfully'], 200);
     }
 
 
@@ -67,34 +76,18 @@ class OtpController extends Controller
         ]);
     }
 
-
     public function resendOtp(ResendOtpRequest $request): JsonResponse
     {
-        $user = User::where('email', $request->email)->first();
+        $user = User::where('email', $request->email)->firstOrFail();
 
-        if (!$user) {
-            return response()->json(['message' => 'User not found.'], 404);
-        }
-
-        Otp::where('user_id', $user->id)
-            ->where('type', $request->type)
-            ->delete();
-
-        $otp_code = rand(100000, 999999);
-
-        $otp = Otp::create([
-            'user_id' => $user->id,
-            'otp_code' => $otp_code,
-            'type' => $request->type,
-            'expires_at' => now()->addMinutes(5),
-        ]);
-
-        Mail::to($user->email)->send(new OtpMail($otp_code));
+        OtpService::send($user, $request->type);
 
         return response()->json([
             'message' => 'OTP resent successfully.',
             'email' => $user->email,
-            'next_step' => $request->type === 'register' ? 'verify_otp' : 'verify_otp_reset',
+            'next_step' => $request->type === 'register'
+                ? 'verify_otp'
+                : 'verify_otp_reset',
         ]);
     }
 }

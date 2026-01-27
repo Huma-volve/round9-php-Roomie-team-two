@@ -66,9 +66,13 @@ Route::delete('/user/destroy', [UserController::class, 'destroy'])
     ->middleware('auth:sanctum');
 
 
-Route::post('/verify-otp', [OtpController::class, 'verify']);
-Route::post('/verify-otp-reset', [OtpController::class, 'verifyResetOtp']);
-Route::post('/resend-otp', [OtpController::class, 'resendOtp']);
+// OTP Management Routes
+Route::prefix('otp')->group(function () {
+    Route::post('/verify', [OtpController::class, 'verify']);
+    Route::post('/verify-reset', [OtpController::class, 'verifyResetOtp']);
+    Route::post('/resend', [OtpController::class, 'resendOtp'])
+        ->middleware('throttle:3,1');;
+});
 
 
 
