@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\UserVerification;
+use App\Http\Resources\Profile\HousingPreferenceResource;
+
 use App\Http\Requests\UpdateBasicInfoRequest;
 use App\Http\Requests\UpdatePasswordRequest;
 use Illuminate\Http\Request;
@@ -39,7 +41,7 @@ class ProfileController extends Controller
                     'gender' => $user->gender,
                     'aboutme' => $user->aboutme,
                 ],
-                'housing_preferences' => $user->housingPreferences,
+                'housing_preferences' => HousingPreferenceResource::collection($user->housingPreferences),
                 'verification' => $user->verification,
                 'lifestyle_trait' => $user->lifestyleTrait,
             ]
@@ -64,7 +66,7 @@ class ProfileController extends Controller
             $user->image = $imagePath;
         }
 
-        $user->update($request->only(['name', 'job_title', 'gender', 'aboutme']));
+        $user->update($request->only(['name', 'job_title', 'gender', 'aboutme','address','max_budget']));
 
         return response()->json([
             'success' => true,

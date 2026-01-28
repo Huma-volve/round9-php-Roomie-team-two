@@ -16,7 +16,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\HousingPreferenceController;
 use App\Http\Controllers\Api\LifestyleTraitController;
-use App\Http\Controllers\Api\VerificationController;
+use App\Http\Controllers\Api\Verification\EmailVerificationController;
+use App\Http\Controllers\Api\Verification\PhoneVerificationController;
+use App\Http\Controllers\Api\Verification\IdVerificationController;
 // ---------------------------
 // Authentication Routes
 // ---------------------------
@@ -111,24 +113,28 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/', [LifestyleTraitController::class, 'destroy']);                // Delete
     });
 
-    // Verification Routes
-    Route::prefix('verification')->group(function () {
-        // Get verification status
-        Route::get('/status', [VerificationController::class, 'getStatus']);
+   Route::prefix('verification/email')->group(function () {
+        Route::post('/send', [EmailVerificationController::class, 'send']);
+        Route::post('/verify', [EmailVerificationController::class, 'verify']);
+        Route::get('/status', [EmailVerificationController::class, 'status']);
+    });
+
+    // Phone Verification Routes
+    Route::prefix('verification/phone')->group(function () {
+        Route::post('/send', [PhoneVerificationController::class, 'send']);
+        Route::post('/verify', [PhoneVerificationController::class, 'verify']);
+        Route::get('/status', [PhoneVerificationController::class, 'status']);
+    });
+
+    // ID Verification Routes
+    Route::prefix('verification/id')->group(function () {
+        Route::post('/upload', [IdVerificationController::class, 'upload']);
+        Route::get('/status', [IdVerificationController::class, 'status']);
         
-        // Email verification
-        Route::post('/email/send', [VerificationController::class, 'sendEmailVerification']);
-        Route::post('/email/verify', [VerificationController::class, 'verifyEmail']);
-        
-        // Phone verification
-        Route::post('/phone/send', [VerificationController::class, 'sendPhoneVerification']);
-        Route::post('/phone/verify', [VerificationController::class, 'verifyPhone']);
-        
-        // ID document verification
-        Route::post('/id/upload', [VerificationController::class, 'uploadIdDocument']);
-        
-        // Admin routes (add admin middleware)
-        Route::post('/id/approve/{userId}', [VerificationController::class, 'approveId']);
-        Route::post('/id/reject/{userId}', [VerificationController::class, 'rejectId']);
+        // Admin routes
+        Route::post('/approve/{userId}', [IdVerificationController::class, 'approve'])
+            ->middleware('admin'); // Create admin middleware
+        Route::post('/reject/{userId}', [IdVerificationController::class, 'reject'])
+            ->middleware('admin');
     });
 });
