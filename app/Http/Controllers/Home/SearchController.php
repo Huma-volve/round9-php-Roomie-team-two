@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Home;
 
 use App\Http\Controllers\Controller;
-use App\Services\SearchServices;
+ use App\Services\HomeService\SearchServices;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 

@@ -19,7 +19,7 @@ return new class extends Migration
 
             // Rental type logic
             $table->enum('rent_type', ['room', 'apartment']);
-            $table->decimal('price_per_month', 10, 2)->nullable();
+            $table->decimal('price_per_night', 10, 2)->nullable();
 
             // Apartment Details
             $table->integer('num_rooms')->default(0);
