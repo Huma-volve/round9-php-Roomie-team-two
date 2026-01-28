@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('room_number');
 
             $table->enum('room_type', ['private', 'shared']);
-            $table->decimal('price_per_month', 10, 2);
+            $table->decimal('price_per_night', 10, 2);
 
             // Room Details
             $table->integer('num_beds')->default(1);
