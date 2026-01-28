@@ -16,6 +16,11 @@ class Booking extends Model
         'status',
     ];
 
+    protected $casts = [
+        'check_in' => 'date',
+        'check_out' => 'date',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -30,7 +35,7 @@ class Booking extends Model
     {
         return $this->belongsTo(Room::class);
     }
-    public function guest()
+    public function guests()
     {
         return $this->hasMany(Guest::class);
     }

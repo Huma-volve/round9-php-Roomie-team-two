@@ -32,12 +32,13 @@ class Room extends Model
     {
         return $this->belongsTo(Property::class);
     }
+
     public function roomImages()
     {
         return $this->hasMany(RoomImage::class);
     }
 
-        public function loans()
+    public function loans()
     {
         return $this->hasMany(RoomLoan::class);
     }
