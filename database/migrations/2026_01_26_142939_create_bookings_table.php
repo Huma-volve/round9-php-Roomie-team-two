@@ -19,6 +19,8 @@ return new class extends Migration
             $table->date('check_in');
             $table->date('check_out');
             $table->decimal('total_price', 10, 2);
+            $table->text('special_request')->nullable();
+            $table->boolean('move_in_protection')->default(false);
             $table->enum('status', ['pending', 'confirmed', 'cancelled', 'completed'])->default('pending');
 
             $table->timestamps();
