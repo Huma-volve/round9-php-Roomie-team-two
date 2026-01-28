@@ -29,14 +29,19 @@ class ConversationController extends Controller
             return apiResponse(ConversationResource::collection($conversations), 'Conversations', true, 200);
     }
 
-    public function startConversation($adminId)
+    public function startConversation($adminId , Request $request)
     {
         $admin = User::findOrFail($adminId);
         $tenant = Auth::user();
 
-        $conversation = Conversation::create([
+        $conversation = Conversation::firstOrCreate([
             'tenant_id' => $tenant->id,
             'admin_id' => $admin->id,
+        ]);
+
+        $conversation->messages()->create([
+            'sender_id' => $tenant->id,
+            'message' => $request->message_body ,
         ]);
 
         return apiResponse(ConversationResource::make($conversation), 'Conversation started successfully', true, 200);
