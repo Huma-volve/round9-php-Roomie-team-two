@@ -52,6 +52,16 @@ class User extends Authenticatable
         ];
     }
 
+    public function messages()
+    {
+        return $this->hasMany(Message::class, 'sender_id');
+    }
+
+    public function conversations()
+    {
+        return $this->hasMany(Conversation::class, $this->is_admin ? 'admin_id' : 'tenant_id');
+    }
+
     public function properties()
     {
         return $this->hasMany(Property::class);
