@@ -13,6 +13,7 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Auth\OtpController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\UserController;
+ use App\Http\Controllers\Api\ContactController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Profile\ProfileController;
@@ -143,6 +144,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/reject/{userId}', [IdVerificationController::class, 'reject'])
             ->middleware('admin');
     });
+
+   
+
+Route::post('/contact', [ContactController::class, 'store']);
 });
 // ---------------------------
 // Bookings Routes (Auth Required)
