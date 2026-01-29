@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Home;
 
 use App\Http\Controllers\Controller;
- use App\Services\HomeService\HomeServices;
+use App\Services\HomeService\HomeServices;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -26,13 +26,8 @@ class HomeController extends Controller
 
             return response()->json([
                 'message' => 'Rooms data fetched successfully',
-                'property_count'=> $propertiesCount,
-                'rooms_near_you' => [
-                    'current_page' => $nearby->currentPage(),
-                    'per_page' => $nearby->perPage(),
-                    'total' => $nearby->total(),
-                    'data' => $nearby->items(),
-                ],
+                'property_count' => $propertiesCount,
+                'rooms_near_you' => $nearby,
                 'latest_rooms' => [
                     'current_page' => $latest->currentPage(),
                     'per_page' => $latest->perPage(),
