@@ -8,6 +8,7 @@ use App\Models\Otp;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Services\OtpService;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\ValidationException;
@@ -28,38 +29,21 @@ class PasswordResetLinkController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (!$user) {
-            throw ValidationException::withMessages([
-                'email' => ['User with this email does not exist.']
-            ]);
+            return apiResponse(
+                null,
+                'User with this email does not exist.',
+                false,
+                404
+            );
         }
 
-        // Generate OTP
-        $otp_code = rand(100000, 999999);
+        OtpService::send($user, 'reset_password');
 
-        // Save OTP in DB
-        Otp::create([
-            'user_id' => $user->id,
-            'otp_code' => $otp_code,
-            'type' => 'reset_password',
-            'expires_at' => now()->addMinutes(5),
-        ]);
-
-        // Send OTP email
-        Mail::to($user->email)->send(new OtpMail($otp_code));
-
-        // We will send the password reset link to this user. Once we have attempted
-        // to send the link, we will examine the response then see the message we
-        // need to show to the user. Finally, we'll send out a proper response.
-        // $status = Password::sendResetLink(
-        //     $request->only('email')
-        // );
-
-        // if ($status != Password::RESET_LINK_SENT) {
-        //     throw ValidationException::withMessages([
-        //         'email' => [__($status)],
-        //     ]);
-        // }
-
-        return response()->json(['status' => 'OTP sent successfully.']);
+        return apiResponse(
+            null,
+            'OTP sent successfully.',
+            true,
+            200
+        );
     }
 }

@@ -11,7 +11,7 @@ class Property extends Model
         'title',
         'description',
         'rent_type',
-        'price_per_month',
+        'price_per_night',
         'num_rooms',
         'num_bathrooms',
         'max_guests',

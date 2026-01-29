@@ -18,29 +18,27 @@ class AuthenticatedSessionController extends Controller
      */
     public function login(LoginRequest $request): JsonResponse
     {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
+        $credentials = $request->only('email', 'password');
 
-        $user = User::where('email', $request->email)->first();
-
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json(['message' => 'Invalid credentials.'], 401);
+        // Attempt login using Laravel Auth
+        if (!Auth::attempt($credentials)) {
+            return apiResponse(null, 'Invalid credentials.', false, 401);
         }
 
+        $user = Auth::user();
+
+        // Check if email verified
         if (!$user->is_verified) {
-            return response()->json(['message' => 'Please verify your email first.'], 403);
+            return apiResponse(null, 'Please verify your email first.', false, 403);
         }
 
-        // Generate API token
+        // Create token for API
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        return response()->json([
-            'message' => 'Login successful!',
+        return apiResponse([
             'access_token' => $token,
             'token_type' => 'Bearer',
-        ]);
+        ], 'Login successful!');
     }
 
     /**
@@ -48,14 +46,24 @@ class AuthenticatedSessionController extends Controller
      */
     public function logout(Request $request): JsonResponse
     {
-        if (!$request->user()) {
-            return response()->json(['message' => 'No authenticated user'], 401);
+        $user = $request->user();
+
+        if (!$user) {
+            return apiResponse(null, 'No authenticated user', false, 404);
         }
 
-        $request->user()->currentAccessToken()->delete();
+        $token = $user->currentAccessToken();
 
-        return response()->json([
-            'message' => 'Logged out successfully'
-        ]);
+        if ($token) {
+            $token->delete();
+            return apiResponse(true, 'Logged out successfully');
+        }
+
+        return apiResponse(
+            null,
+            'No active access token found',
+            false,
+            400
+        );
     }
 }
