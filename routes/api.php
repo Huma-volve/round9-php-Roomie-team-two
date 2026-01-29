@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\Home\HomeController;
 use App\Http\Controllers\Home\SearchController;
 use App\Http\Controllers\RoomDetails\RoomDetailsController;
@@ -16,6 +17,10 @@ use App\Http\Controllers\ReviewsController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\MessageController;
+
+
+
 
 // ---------------------------
 // Routes (Home / Search / Room Details)
@@ -81,6 +86,19 @@ Route::prefix('otp')->group(function () {
 // ---------------------------
 Route::get('/auth/google/redirect', [SocialAuthController::class, 'redirectToGoogle']);
 Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
+
+
+// ---------------------------
+// Chat Routes 
+// ---------------------------
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/conversations', [ConversationController::class, 'index']);
+    Route::post('/conversations/start/{adminId}', [ConversationController::class, 'startConversation']);
+    Route::get('/conversations/{id}', [ConversationController::class, 'show']);
+
+    Route::get('/message/search', [MessageController::class, 'search']);
+    Route::post('/message/store/{id}', [MessageController::class, 'store']);
+});
 
 // ---------------------------
 // Bookings Routes (Auth Required)
