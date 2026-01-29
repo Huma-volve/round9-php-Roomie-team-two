@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\profile;
 
 use App\Http\Controllers\Controller;
 use App\Models\LifestyleTrait;
@@ -18,9 +18,10 @@ class LifestyleTraitController extends Controller
 
         if (!$trait) {
             return response()->json([
-                'success' => false,
-                'message' => 'Lifestyle trait not found'
-            ], 404);
+                'success' => true,
+                'message' => 'لم يتم إضافة صفات بعد',
+                'data' => null
+            ], 200);  
         }
 
         return response()->json([
@@ -47,7 +48,7 @@ class LifestyleTraitController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Lifestyle trait saved successfully',
+            'message' => 'تم حفظ الصفات بنجاح',
             'data' => $trait
         ], 200);
     }
@@ -62,7 +63,7 @@ class LifestyleTraitController extends Controller
         if (!$trait) {
             return response()->json([
                 'success' => false,
-                'message' => 'Lifestyle trait not found'
+                'message' => 'الصفات غير موجودة'
             ], 404);
         }
 
@@ -70,7 +71,7 @@ class LifestyleTraitController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Lifestyle trait deleted successfully'
+            'message' => 'تم حذف الصفات بنجاح'
         ], 200);
     }
 }

@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Profile;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\UserVerification;
 use App\Http\Resources\Profile\HousingPreferenceResource;
-
+use App\Http\Resources\Profile\VerificationResource;
+use App\Http\Resources\Profile\LifestyleTraitResource;
 use App\Http\Requests\UpdateBasicInfoRequest;
 use App\Http\Requests\UpdatePasswordRequest;
 use Illuminate\Http\Request;
@@ -19,7 +20,8 @@ class ProfileController extends Controller
     /**
      * Get authenticated user profile
      */
-    public function show()
+
+public function show()
     {
         $user = Auth::user()->load([
             'housingPreferences',
@@ -42,11 +44,12 @@ class ProfileController extends Controller
                     'aboutme' => $user->aboutme,
                 ],
                 'housing_preferences' => HousingPreferenceResource::collection($user->housingPreferences),
-                'verification' => $user->verification,
-                'lifestyle_trait' => $user->lifestyleTrait,
+                'verification' => $user->verification ? new VerificationResource($user->verification) : null,
+                'lifestyle_trait' => $user->lifestyleTrait ? new LifestyleTraitResource($user->lifestyleTrait) : null, // ✅ عدلت هنا
             ]
         ], 200);
     }
+
 
     /**
      * Update user basic info

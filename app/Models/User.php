@@ -91,7 +91,7 @@ class User extends Authenticatable
      * Get the lifestyle trait for the user.
      */
     public function lifestyleTrait()
-    {
-        return $this->hasOne(LifestyleTrait::class);
-    }
+{
+    return $this->hasOne(LifestyleTrait::class);
+}
 }

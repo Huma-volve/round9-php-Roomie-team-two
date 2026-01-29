@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Profile;
 
 use App\Http\Controllers\Controller;
 use App\Models\HousingPreference;
 use App\Http\Requests\StoreHousingPreferenceRequest;
-use App\Http\Resources\Profile\HousingPreferenceResource;
 use App\Http\Requests\UpdateHousingPreferenceRequest;
 use Illuminate\Support\Facades\Auth;
 

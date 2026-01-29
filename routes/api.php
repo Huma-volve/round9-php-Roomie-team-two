@@ -13,9 +13,9 @@ use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\ProfileController;
-use App\Http\Controllers\Api\HousingPreferenceController;
-use App\Http\Controllers\Api\LifestyleTraitController;
+use App\Http\Controllers\Api\Profile\ProfileController;
+use App\Http\Controllers\Api\Profile\HousingPreferenceController;
+use App\Http\Controllers\Api\Profile\LifestyleTraitController;
 use App\Http\Controllers\Api\Verification\EmailVerificationController;
 use App\Http\Controllers\Api\Verification\PhoneVerificationController;
 use App\Http\Controllers\Api\Verification\IdVerificationController;
@@ -133,7 +133,7 @@ Route::middleware('auth:sanctum')->group(function () {
         
         // Admin routes
         Route::post('/approve/{userId}', [IdVerificationController::class, 'approve'])
-            ->middleware('admin'); // Create admin middleware
+            ->middleware('admin'); 
         Route::post('/reject/{userId}', [IdVerificationController::class, 'reject'])
             ->middleware('admin');
     });
