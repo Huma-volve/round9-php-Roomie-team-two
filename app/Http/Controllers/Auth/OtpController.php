@@ -39,10 +39,12 @@ class OtpController extends Controller
 
         $user->is_verified = true;
         $user->save();
-
+        $token = $user->createToken('auth_token')->plainTextToken;
         $otp->delete();
-
-        return response()->json(['message' => 'Email verified successfully'], 200);
+        return apiResponse([
+            'data' => $token,
+            'message' => 'Email verified successfully'
+        ], 200);
     }
 
 
