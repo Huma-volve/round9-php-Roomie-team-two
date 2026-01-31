@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\Home\HomeController;
 use App\Http\Controllers\Home\SearchController;
 use App\Http\Controllers\RoomDetails\RoomDetailsController;
@@ -22,6 +23,11 @@ use App\Http\Controllers\Api\Profile\LifestyleTraitController;
 use App\Http\Controllers\Api\Verification\EmailVerificationController;
 use App\Http\Controllers\Api\Verification\PhoneVerificationController;
 use App\Http\Controllers\Api\Verification\IdVerificationController;
+use App\Http\Controllers\MessageController;
+
+
+
+
 // ---------------------------
 // Public Routes (Home / Search / Room Details)
 // ---------------------------
@@ -149,6 +155,19 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::post('/contact', [ContactController::class, 'store']);
 });
+
+// ---------------------------
+// Chat Routes 
+// ---------------------------
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/conversations', [ConversationController::class, 'index']);
+    Route::post('/conversations/start/{adminId}', [ConversationController::class, 'startConversation']);
+    Route::get('/conversations/{id}', [ConversationController::class, 'show']);
+
+    Route::get('/message/search', [MessageController::class, 'search']);
+    Route::post('/message/store/{id}', [MessageController::class, 'store']);
+});
+
 // ---------------------------
 // Bookings Routes (Auth Required)
 // ---------------------------
