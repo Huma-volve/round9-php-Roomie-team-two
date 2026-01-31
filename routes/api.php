@@ -35,6 +35,10 @@ use App\Http\Controllers\MessageController;
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/', [HomeController::class, 'index']);
     Route::get('/search', [SearchController::class, 'search']);
+    Route::get('/search/history', [SearchController::class, 'getSearchHistory']);
+    Route::get('/search/popular-locations', [SearchController::class, 'getPopularLocations']);
+    Route::get('/search/nearest', [SearchController::class, 'findNearest']);
+    Route::post('/search/update-location', [SearchController::class, 'updateLocation']);
     Route::get('/room-details/{id}', [RoomDetailsController::class, 'getAllRoomDetails']);
 });
 

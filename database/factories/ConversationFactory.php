@@ -17,11 +17,11 @@ class ConversationFactory extends Factory
     public function definition(): array
     {
         return [
-            'tenant_id' => rand(2, 10),
+            'tenant_id' => rand(2, 7),
             'admin_id' => 1,
             'last_message'=> $this->faker->sentence(),
             'last_message_at' => now(),
-            
+
         ];
     }
 }

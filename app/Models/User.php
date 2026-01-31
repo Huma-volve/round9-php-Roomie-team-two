@@ -30,6 +30,11 @@ class User extends Authenticatable
         'email_verified_at',
         'is_verified', // ⭐ إضافة is_verified هنا
         'password',
+        'latitude',
+        'longitude',
+        'city',
+        'country',
+        'last_location_update',
     ];
 
     /**
@@ -52,6 +57,9 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'latitude' => 'decimal:8',
+            'longitude' => 'decimal:8',
+            'last_location_update' => 'datetime',
             'is_verified' => 'boolean', // ⭐ إضافة casting للـ is_verified
         ];
     }
