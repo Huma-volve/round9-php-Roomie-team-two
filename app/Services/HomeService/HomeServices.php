@@ -13,10 +13,9 @@ class HomeServices
     public function getUserLocation()
     {
         try {
-             $ip = request()->ip();
+            $ip = request()->ip();
             // $ip = '8.8.8.8'; // Test IP 
             $location = Location::get($ip);
-
             if (!$location) {
                 return null;
             }
@@ -59,7 +58,13 @@ class HomeServices
                 ->having('distance', '<=', 10000)
                 ->orderBy('distance')
                 ->paginate(6);
-            return $rooms;
+            return response()->json([
+                'message' => 'Rooms data fetched successfully',
+                'total' => $rooms->total(),
+                'per_page' => $rooms->perPage(),
+                'current_page' => $rooms->currentPage(),
+                'rooms_near_you' => $rooms->items()
+            ]);
         } catch (\Exception $e) {
             Log::error("Error fetching nearby rooms: " . $e->getMessage());
             return response()->json([
@@ -105,7 +110,8 @@ class HomeServices
         return $reviews;
     }
 
-    public function getPropertiesCount(){
+    public function getPropertiesCount()
+    {
         return Property::count();
     }
 }
