@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -21,11 +21,14 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
-        'title',
+        'job_title',
         'aboutme',
         'max_budget',
         'address',
+        'gender',
+        'image',
         'email_verified_at',
+        'is_verified', // ⭐ إضافة is_verified هنا
         'password',
     ];
 
@@ -49,6 +52,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_verified' => 'boolean', // ⭐ إضافة casting للـ is_verified
         ];
     }
 
@@ -76,4 +80,28 @@ class User extends Authenticatable
     {
         return $this->hasMany(Review::class);
     }
+    
+    /**
+     * Get the housing preferences for the user.
+     */
+    public function housingPreferences()
+    {
+        return $this->hasMany(HousingPreference::class);
+    }
+
+    /**
+     * Get the verification for the user.
+     */
+    public function verification()
+    {
+        return $this->hasOne(UserVerification::class);
+    }
+
+    /**
+     * Get the lifestyle trait for the user.
+     */
+    public function lifestyleTrait()
+{
+    return $this->hasOne(LifestyleTrait::class);
+}
 }
