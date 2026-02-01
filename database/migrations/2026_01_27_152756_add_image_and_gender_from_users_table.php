@@ -15,7 +15,10 @@ return new class extends Migration {
             $table->string('image')->nullable()->after('name');
             
            
-            $table->enum('gender', ['male', 'female'])->nullable()->after('job_title');
+      $table->enum('gender', ['male', 'female'])
+      ->default('male')
+      ->nullable()
+      ->after('job_title');
         });
     }
 
