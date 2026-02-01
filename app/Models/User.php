@@ -29,6 +29,7 @@ class User extends Authenticatable
         'image',
         'email_verified_at',
         'is_verified', // ⭐ إضافة is_verified هنا
+        'is_admin',
         'password',
         'latitude',
         'longitude',
@@ -61,6 +62,7 @@ class User extends Authenticatable
             'longitude' => 'decimal:8',
             'last_location_update' => 'datetime',
             'is_verified' => 'boolean', // ⭐ إضافة casting للـ is_verified
+            'is_admin' => 'boolean',
         ];
     }
 
