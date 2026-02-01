@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Admin\AdminAuthController;
-
+use App\Http\Controllers\Admin\AdminUserController;
 
 Route::get('/', function () {
     return ['Laravel' => app()->version()];
@@ -16,10 +16,12 @@ Route::prefix('admin')->group(function () {
     Route::post('/logout', [AdminAuthController::class, 'destroy'])->name('admin.logout')->middleware('auth');
 });
 
-Route::middleware(['auth', 'admin'])->group(function () {
-    Route::get('/admin/dashboard', function () {
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    Route::get('/dashboard', function () {
         return view('admin.dashboard');
     })->name('admin.dashboard');
+
+    Route::get('/users', [AdminUserController::class, 'index'])->name('admin.users.index');
 });
 
 
