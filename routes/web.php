@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\PropertyController;
+use App\Http\Controllers\Admin\RoomController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -16,4 +18,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('bookings', [BookingController::class, 'getUserBookings']);
     Route::get('bookings/{booking}', [BookingController::class, 'show']);
     Route::delete('bookings/{booking}', [BookingController::class, 'cancel']);
+});
+
+
+Route::prefix('admin')->as('admin.')->group(function () {
+    Route::resource('properties', PropertyController::class);
+    Route::resource('rooms', RoomController::class);
 });
