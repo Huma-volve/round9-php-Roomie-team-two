@@ -9,6 +9,9 @@ Route::get('/', function () {
 require __DIR__.'/auth.php';
 
 
+Route::get('/test', function () {
+    return view('blank'); 
+});
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('booking/calculate-price', [BookingController::class, 'calculateTotalPrice']);
