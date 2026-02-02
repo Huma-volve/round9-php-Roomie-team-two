@@ -22,29 +22,47 @@ class ConversationController extends Controller
                 return $query->where('tenant_id', $user->id);
             })
             ->with(['admin', 'tenant'])
-            ->orderBy('last_message_at', 'desc') 
+            ->orderBy('last_message_at', 'desc')
             ->get();
 
 
-            return apiResponse(ConversationResource::collection($conversations), 'Conversations', true, 200);
+        return apiResponse(ConversationResource::collection($conversations), 'Conversations', true, 200);
     }
 
-    public function startConversation($adminId , Request $request)
+    public function startConversation($adminId, Request $request)
     {
-        $admin = User::findOrFail($adminId);
         $tenant = Auth::user();
 
-        $conversation = Conversation::firstOrCreate([
-            'tenant_id' => $tenant->id,
-            'admin_id' => $admin->id,
-        ]);
+        $admin = User::where('id', $adminId)
+            ->where('is_admin', true)
+            ->first();
+
+        if (!$admin) {
+            return apiResponse(null, 'You can only start a conversation with an admin', false, 403);
+        }
+
+        $conversation = Conversation::firstOrCreate(
+            [
+                'tenant_id' => $tenant->id,
+                'admin_id' => $admin->id,
+            ],
+            [
+                'last_message' => $request->message_body,
+                'last_message_at' => now(),
+            ]
+        );
 
         $conversation->messages()->create([
             'sender_id' => $tenant->id,
-            'message' => $request->message_body ,
+            'message_body' => $request->message_body,
         ]);
 
-        return apiResponse(ConversationResource::make($conversation), 'Conversation started successfully', true, 200);
+        return apiResponse(
+            ConversationResource::make($conversation),
+            'Conversation started successfully',
+            true,
+            200
+        );
     }
 
     public function show($id)
@@ -71,6 +89,5 @@ class ConversationController extends Controller
             'conversation' => ConversationResource::make($conversation),
             'messages' => MessageResource::collection($messages),
         ], 'Conversation', true, 200);
-
     }
 }
