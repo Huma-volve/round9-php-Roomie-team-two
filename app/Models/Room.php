@@ -10,7 +10,7 @@ class Room extends Model
         'property_id',
         'room_number',
         'room_type',
-        'price_per_month',
+        'price_per_night',
         'num_beds',
         'room_bed_type',
         'size_in_sq_m',

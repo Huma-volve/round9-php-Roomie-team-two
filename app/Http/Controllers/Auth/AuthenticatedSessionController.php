@@ -36,9 +36,9 @@ class AuthenticatedSessionController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return apiResponse([
-            'access_token' => $token,
-            'token_type' => 'Bearer',
-        ], 'Login successful!');
+            'data' => $token,
+            'message' => 'Login successful!'
+        ], 200);
     }
 
     /**

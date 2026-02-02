@@ -13,6 +13,12 @@ class ConversationSeeder extends Seeder
      */
     public function run(): void
     {
-        Conversation::factory()->count(10)->create();
+        // Create unique conversations for each tenant user (IDs 2-7)
+        for ($tenantId = 2; $tenantId <= 7; $tenantId++) {
+            Conversation::factory()->create([
+                'tenant_id' => $tenantId,
+                'admin_id' => 1,
+            ]);
+        }
     }
 }
