@@ -13,6 +13,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Auth\OtpController;
 use App\Http\Controllers\Auth\SocialAuthController;
+use App\Http\Controllers\ReviewsController;
 use App\Http\Controllers\UserController;
  use App\Http\Controllers\Api\ContactController;
 use Illuminate\Http\Request;
@@ -29,11 +30,15 @@ use App\Http\Controllers\MessageController;
 
 
 // ---------------------------
-// Public Routes (Home / Search / Room Details)
+// Routes (Home / Search / Room Details)
 // ---------------------------
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/', [HomeController::class, 'index']);
     Route::get('/search', [SearchController::class, 'search']);
+    Route::get('/search/history', [SearchController::class, 'getSearchHistory']);
+    Route::get('/search/popular-locations', [SearchController::class, 'getPopularLocations']);
+    Route::get('/search/nearest', [SearchController::class, 'findNearest']);
+    Route::post('/search/update-location', [SearchController::class, 'updateLocation']);
     Route::get('/room-details/{id}', [RoomDetailsController::class, 'getAllRoomDetails']);
 });
 
@@ -177,4 +182,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('bookings', [BookingController::class, 'getUserBookings']);
     Route::get('bookings/{booking}', [BookingController::class, 'show']);
     Route::delete('bookings/{booking}', [BookingController::class, 'cancel']);
+});
+// --------------------------- 
+// Review Routes 
+// ---------------------------
+Route::middleware('auth:sanctum')->group(function () {
+Route::post('/bookings/{booking_id}/reviews', [ReviewsController::class, 'create']);
+Route::put('/reviews/{review_id}', [ReviewsController::class, 'update']);
+Route::delete('/reviews/{review_id}', [ReviewsController::class, 'delete']);
+Route::get('/my-reviews', [ReviewsController::class, 'myReviews']);
 });

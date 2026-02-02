@@ -19,29 +19,19 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Run individual seeders in correct order
+        $this->call([
+            UserSeeder::class,
+            PropertySeeder::class,
+            PropertyImageSeeder::class,
+            RoomSeeder::class,
+            SearchHistorySeeder::class,
+            ConversationSeeder::class,
+            MessageSeeder::class,
+            ReviewSeeder::class,
+        ]);
 
-
-        $tenants = User::where('is_admin', false)->get();
-        $admin = User::where('is_admin', true)->first();
-
-        foreach ($tenants as $tenant) {
-            $conversation = Conversation::factory()->create([
-                'tenant_id' => $tenant->id,
-                'admin_id'  => $admin->id,
-                'last_message' => 'Hello Admin!',
-                'last_message_at' => now(),
-            ]);
-
-            Message::factory()->count(5)->create([
-                'conversation_id' => $conversation->id,
-                'sender_id' => $tenant->id, // رسالة من المستأجر
-            ]);
-
-            Message::factory()->count(2)->create([
-                'conversation_id' => $conversation->id,
-                'sender_id' => $admin->id, 
-            ]);
-        }
+        // Conversations and messages are now handled by ConversationSeeder and MessageSeeder
 
     }
 }
