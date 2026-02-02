@@ -17,18 +17,24 @@ class IsAdmin
     {
         // Check if user is authenticated
         if (!auth()->check()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthenticated'
-            ], 401);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthenticated'
+                ], 401);
+            }
+            return redirect()->route('admin.login');
         }
 
         // Check if user is admin
         if (auth()->user()->is_admin != 1) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized. Admin access required.'
-            ], 403);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized. Admin access required.'
+                ], 403);
+            }
+            abort(403, 'Unauthorized action.');
         }
 
         return $next($request);
