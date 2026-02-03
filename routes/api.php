@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\BookingController;
+use App\Http\Controllers\Api\PaymentController;
+use App\Http\Controllers\Api\StripeWebhookController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\NewPasswordController;
@@ -80,11 +82,27 @@ Route::prefix('otp')->group(function () {
 Route::get('/auth/google/redirect', [SocialAuthController::class, 'redirectToGoogle']);
 Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
 
-
 Route::middleware('auth:sanctum')->group(function () {
+    // Booking Management Routes
+
+
+    // Payment Routes
+
     Route::post('booking/calculate-price', [BookingController::class, 'calculateTotalPrice']);
     Route::post('bookings', [BookingController::class, 'store']);
     Route::get('bookings', [BookingController::class, 'getUserBookings']);
     Route::get('bookings/{booking}', [BookingController::class, 'show']);
     Route::delete('bookings/{booking}', [BookingController::class, 'cancel']);
+
+
+    Route::post('payments/initiate', [PaymentController::class, 'initiatePayment']);
+    Route::post('payments/confirm', [PaymentController::class, 'confirmPayment']);
+    Route::get('payments/user', [PaymentController::class, 'userPayments']);
+    Route::get('payments/{payment}', [PaymentController::class, 'show']);
+    Route::get('payments/{payment}/download-invoice', [PaymentController::class, 'downloadInvoice']);
+    Route::get('/payments/{payment}/summary', [PaymentController::class, 'paymentSummary']);
 });
+
+
+Route::post('webhooks/stripe', [StripeWebhookController::class, 'handleWebhook'])
+    ->withoutMiddleware(['auth:sanctum', 'verified']);
