@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\ConversationController;
+use App\Http\Controllers\Home\HomeController;
+use App\Http\Controllers\Home\SearchController;
+use App\Http\Controllers\RoomDetails\RoomDetailsController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\StripeWebhookController;
@@ -9,25 +13,46 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
-
-
 use App\Http\Controllers\Auth\OtpController;
 use App\Http\Controllers\Auth\SocialAuthController;
+use App\Http\Controllers\ReviewsController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\Api\ContactController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\Profile\ProfileController;
+use App\Http\Controllers\Api\Profile\HousingPreferenceController;
+use App\Http\Controllers\Api\Profile\LifestyleTraitController;
+use App\Http\Controllers\Api\Verification\EmailVerificationController;
+use App\Http\Controllers\Api\Verification\PhoneVerificationController;
+use App\Http\Controllers\Api\Verification\IdVerificationController;
+use App\Http\Controllers\MessageController;
+
+
+
+
+// ---------------------------
+// Routes (Home / Search / Room Details)
+// ---------------------------
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/', [HomeController::class, 'index']);
+    Route::get('/search', [SearchController::class, 'search']);
+    Route::get('/search/history', [SearchController::class, 'getSearchHistory']);
+    Route::get('/search/popular-locations', [SearchController::class, 'getPopularLocations']);
+    Route::get('/search/nearest', [SearchController::class, 'findNearest']);
+    Route::post('/search/update-location', [SearchController::class, 'updateLocation']);
+    Route::get('/room-details/{id}', [RoomDetailsController::class, 'getAllRoomDetails']);
+});
 
 // ---------------------------
 // Authentication Routes
 // ---------------------------
 
 // Register a new user
-Route::post('/register', [RegisteredUserController::class, 'store'])
-    ->name('register');
+Route::post('/register', [RegisteredUserController::class, 'store'])->name('register');
 
 // Login
-Route::post('/login', [AuthenticatedSessionController::class, 'login'])
-    ->name('login');
+Route::post('/login', [AuthenticatedSessionController::class, 'login'])->name('login');
 
 // Logout
 Route::post('/logout', [AuthenticatedSessionController::class, 'logout'])
@@ -37,25 +62,16 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'logout'])
 // ---------------------------
 // Password Reset Routes
 // ---------------------------
-
-// Send password reset link
-Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
-    ->name('password.email');
-
-// Reset password
-Route::post('/reset-password', [NewPasswordController::class, 'store'])
-    ->name('password.store');
+Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
+Route::post('/reset-password', [NewPasswordController::class, 'store'])->name('password.store');
 
 // ---------------------------
 // Email Verification Routes
 // ---------------------------
-
-// Verify email
 Route::get('/verify-email/{id}/{hash}', VerifyEmailController::class)
     ->middleware(['auth:sanctum', 'signed', 'throttle:6,1'])
     ->name('verification.verify');
 
-// Resend email verification notification
 Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
     ->middleware(['auth:sanctum', 'throttle:6,1'])
     ->name('verification.send');
@@ -63,38 +79,114 @@ Route::post('/email/verification-notification', [EmailVerificationNotificationCo
 // ---------------------------
 // User Management Routes
 // ---------------------------
+Route::get('/user', function (Request $request) {
+    return $request->user();
+})->middleware('auth:sanctum');
 
-// Delete user account
-Route::delete('/user/destroy', [UserController::class, 'destroy'])
-    ->middleware('auth:sanctum');
+Route::delete('/user/destroy', [UserController::class, 'destroy'])->middleware('auth:sanctum');
 
-
+// ---------------------------
 // OTP Management Routes
+// ---------------------------
 Route::prefix('otp')->group(function () {
     Route::post('/verify', [OtpController::class, 'verify']);
     Route::post('/verify-reset', [OtpController::class, 'verifyResetOtp']);
-    Route::post('/resend', [OtpController::class, 'resendOtp'])
-        ->middleware('throttle:3,1');;
+    Route::post('/resend', [OtpController::class, 'resendOtp'])->middleware('throttle:3,1');
 });
 
-
-
+// ---------------------------
+// Social Login Routes
+// ---------------------------
 Route::get('/auth/google/redirect', [SocialAuthController::class, 'redirectToGoogle']);
 Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
 
 Route::middleware('auth:sanctum')->group(function () {
+
+    // Profile Routes
+    Route::prefix('profile')->group(function () {
+        // Get profile
+        Route::get('/', [ProfileController::class, 'show']);
+
+        // Update basic info (name, job_title, gender, aboutme, image)
+        Route::post('/basic-info', [ProfileController::class, 'updateBasicInfo']);
+
+        // Update password
+        Route::post('/password', [ProfileController::class, 'updatePassword']);
+
+        // Delete profile image
+        Route::delete('/image', [ProfileController::class, 'deleteImage']);
+    });
+
+    // Housing Preferences Routes (CRUD)
+    Route::prefix('housing-preferences')->group(function () {
+        Route::get('/', [HousingPreferenceController::class, 'index']);           // Get all
+        Route::post('/', [HousingPreferenceController::class, 'store']);          // Create
+        Route::get('/{id}', [HousingPreferenceController::class, 'show']);        // Get one
+        Route::put('/{id}', [HousingPreferenceController::class, 'update']);      // Update
+        Route::delete('/{id}', [HousingPreferenceController::class, 'destroy']);  // Delete
+    });
+
+    // Lifestyle Trait Routes (Single - Create/Update)
+    Route::prefix('lifestyle-trait')->group(function () {
+        Route::get('/', [LifestyleTraitController::class, 'show']);                      // Get
+        Route::post('/', [LifestyleTraitController::class, 'createOrUpdate']);           // Create or Update
+        Route::delete('/', [LifestyleTraitController::class, 'destroy']);                // Delete
+    });
+
+    Route::prefix('verification/email')->group(function () {
+        Route::post('/send', [EmailVerificationController::class, 'send']);
+        Route::post('/verify', [EmailVerificationController::class, 'verify']);
+        Route::get('/status', [EmailVerificationController::class, 'status']);
+    });
+
+    // Phone Verification Routes
+    Route::prefix('verification/phone')->group(function () {
+        Route::post('/send', [PhoneVerificationController::class, 'send']);
+        Route::post('/verify', [PhoneVerificationController::class, 'verify']);
+        Route::get('/status', [PhoneVerificationController::class, 'status']);
+    });
+
+    // ID Verification Routes
+    Route::prefix('verification/id')->group(function () {
+        Route::post('/upload', [IdVerificationController::class, 'upload']);
+        Route::get('/status', [IdVerificationController::class, 'status']);
+
+        // Admin routes
+        Route::post('/approve/{userId}', [IdVerificationController::class, 'approve'])
+            ->middleware('admin');
+        Route::post('/reject/{userId}', [IdVerificationController::class, 'reject'])
+            ->middleware('admin');
+    });
+
+
+
+    Route::post('/contact', [ContactController::class, 'store']);
+});
+
+// ---------------------------
+// Chat Routes
+// ---------------------------
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/conversations', [ConversationController::class, 'index']);
+    Route::post('/conversations/start/{adminId}', [ConversationController::class, 'startConversation']);
+    Route::get('/conversations/{id}', [ConversationController::class, 'show']);
+
+    Route::get('/message/search', [MessageController::class, 'search']);
+    Route::post('/message/store/{id}', [MessageController::class, 'store']);
+});
+
+// ---------------------------
+// Bookings And Payments Routes (Auth Required)
+// ---------------------------
+Route::middleware('auth:sanctum')->group(function () {
     // Booking Management Routes
-
-
-    // Payment Routes
-
     Route::post('booking/calculate-price', [BookingController::class, 'calculateTotalPrice']);
     Route::post('bookings', [BookingController::class, 'store']);
     Route::get('bookings', [BookingController::class, 'getUserBookings']);
     Route::get('bookings/{booking}', [BookingController::class, 'show']);
     Route::delete('bookings/{booking}', [BookingController::class, 'cancel']);
 
-
+    // Payment Routes
     Route::post('payments/initiate', [PaymentController::class, 'initiatePayment']);
     Route::post('payments/confirm', [PaymentController::class, 'confirmPayment']);
     Route::get('payments/user', [PaymentController::class, 'userPayments']);
@@ -103,6 +195,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/payments/{payment}/summary', [PaymentController::class, 'paymentSummary']);
 });
 
-
+// ---------------------------
+// Stripe Webhook Route
+// ---------------------------
 Route::post('webhooks/stripe', [StripeWebhookController::class, 'handleWebhook'])
     ->withoutMiddleware(['auth:sanctum', 'verified']);
+
+// ---------------------------
+// Review Routes
+// ---------------------------
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/bookings/{booking_id}/reviews', [ReviewsController::class, 'create']);
+    Route::put('/reviews/{review_id}', [ReviewsController::class, 'update']);
+    Route::delete('/reviews/{review_id}', [ReviewsController::class, 'delete']);
+    Route::get('/my-reviews', [ReviewsController::class, 'myReviews']);
+});

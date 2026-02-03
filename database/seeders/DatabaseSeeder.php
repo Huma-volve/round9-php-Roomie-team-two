@@ -3,8 +3,12 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Message;
+use App\Models\Conversation;
 use Illuminate\Database\Seeder;
+use Database\Seeders\MessageSeeder;
+use Database\Seeders\ConversationSeeder;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,11 +19,19 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // Run individual seeders in correct order
+        $this->call([
+            UserSeeder::class,
+            PropertySeeder::class,
+            PropertyImageSeeder::class,
+            RoomSeeder::class,
+            SearchHistorySeeder::class,
+            ConversationSeeder::class,
+            MessageSeeder::class,
+            ReviewSeeder::class,
         ]);
+
+        // Conversations and messages are now handled by ConversationSeeder and MessageSeeder
+
     }
 }
