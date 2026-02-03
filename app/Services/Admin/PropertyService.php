@@ -29,7 +29,7 @@ class PropertyService
             'latitude',
             'longitude',
             'available_from'
-        )->get();
+        )->paginate(10);
         return $properties;
     }
 

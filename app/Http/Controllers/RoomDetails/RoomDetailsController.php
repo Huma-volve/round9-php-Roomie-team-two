@@ -35,7 +35,7 @@ class RoomDetailsController extends Controller
             $roomDescription = $room->property->description;
 
             //  Room details + overview
-            [$roomDetails ,$roomOverview] = $room;
+            $roomDetails  = $room;
 
             // reviews
             $reviews = $this->roomDetailsServices->getReviews($room);

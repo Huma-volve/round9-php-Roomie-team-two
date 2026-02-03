@@ -11,7 +11,7 @@ class RoomService
 {
     public function getAll()
     {
-        $rooms = Room::with('property:id,title')->get();
+        $rooms = Room::with('property:id,title')->paginate(10);
         return $rooms;
     }
 
@@ -26,7 +26,7 @@ class RoomService
                 "price_per_night" => $request->price_per_night,
                 "num_beds" => $request->num_beds,
                 "room_bed_type" => $request->room_bed_type,
-                "size_in_sq_m" => $request->size_in_sq_m,
+                "size_in_sq_m" => 1,
                 "capacity" => $request->capacity,
                 "current_roomates" => $request->current_roomates,
                 "room_amenities" => $request->room_amenities,
@@ -44,7 +44,7 @@ class RoomService
             }
             RoomImage::create([
                 'room_id' => $room->id,
-                'image_path' => $mainName,
+                'image_path' => 'rooms/main/' . $mainName,
                 'is_main' => 1
             ]);
             $additionalImages = [];

@@ -30,7 +30,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
 });
 
-
+Route::middleware(['auth', 'admin'])->prefix('admin')->as('admin.')->group(function () {
+    Route::resource('properties', PropertyController::class);
+    Route::resource('rooms', RoomController::class);
+});
 
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -42,7 +45,3 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 
-Route::prefix('admin')->as('admin.')->group(function () {
-    Route::resource('properties', PropertyController::class);
-    Route::resource('rooms', RoomController::class);
-});

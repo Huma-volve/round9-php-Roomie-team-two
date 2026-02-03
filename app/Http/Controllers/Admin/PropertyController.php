@@ -9,23 +9,35 @@ use App\Enums\Status;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StorePropertyRequest;
 use App\Http\Requests\Admin\UpdatePropertyRequest;
+use App\Models\Property;
 use App\Services\Admin\PropertyService;
 use Illuminate\Http\Request;
 
 class PropertyController extends Controller
 {
     private  $propertyService;
-
     public function __construct(PropertyService $propertyService)
     {
         $this->propertyService = $propertyService;
     }
-
-    public function index()
+    public function index(Request $request)
     {
-        $properties = $this->propertyService->getAll();
-        return view('AdminPanel.property.table_properties', compact('properties'));
+        $query = Property::latest();
+
+        if ($request->has('search')) {
+            $search = $request->get('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        $properties = $query->paginate(10);
+
+        return view('admin.properties.index', compact('properties'));
     }
+
+
 
     public function create()
     {
@@ -34,7 +46,7 @@ class PropertyController extends Controller
         $furnishingTypes = Furnishing::options();
         $statusTypes = Status::options();
         return view(
-            'AdminPanel.property.create_property',
+            'admin.properties.create',
             compact('rentTypes', 'genderTypes', 'furnishingTypes', 'statusTypes')
         );
     }
@@ -42,7 +54,8 @@ class PropertyController extends Controller
     public function store(StorePropertyRequest $request)
     {
         $this->propertyService->storeProperty($request);
-        return view('AdminPanel.property.table_properties');
+        return redirect()->route('admin.properties.index')
+            ->with('success', 'Property created successfully.');
     }
 
     public function show(string $id)
@@ -59,7 +72,7 @@ class PropertyController extends Controller
         $furnishingTypes = Furnishing::options();
         $statusTypes = Status::options();
         return view(
-            'AdminPanel.property.create_property',
+            'admin.properties.edit',
             compact('rentTypes', 'genderTypes', 'furnishingTypes', 'statusTypes', 'property')
         );
     }
@@ -67,12 +80,15 @@ class PropertyController extends Controller
     public function update(UpdatePropertyRequest $request, string $id)
     {
         $this->propertyService->updateProperty($request, $id);
-        return view('AdminPanel.property.table_properties');
+        return redirect()->route('admin.properties.index')
+            ->with('success', 'Property updated successfully.');
     }
 
     public function destroy(string $id)
     {
         $this->propertyService->destroyByID($id);
-        return view('AdminPanel.property.table_properties');
+
+        return redirect()->route('admin.properties.index')
+            ->with('success', 'Property deleted successfully.');
     }
 }
