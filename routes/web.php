@@ -55,7 +55,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     // Other admin routes...
 });
 
-Route::get('/test', function () {
+Route::get('/dashboard', function () {
     return view('blank'); 
 });
 
