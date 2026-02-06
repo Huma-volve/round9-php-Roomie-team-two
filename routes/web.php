@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\PropertyController;
+use App\Http\Controllers\Admin\RoomController;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Admin\AdminAuthController;
@@ -28,7 +30,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
 });
 
-
+Route::middleware(['auth', 'admin'])->prefix('admin')->as('admin.')->group(function () {
+    Route::resource('properties', PropertyController::class);
+    Route::resource('rooms', RoomController::class);
+});
 
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -38,3 +43,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('bookings/{booking}', [BookingController::class, 'show']);
     Route::delete('bookings/{booking}', [BookingController::class, 'cancel']);
 });
+
+
