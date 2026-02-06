@@ -35,19 +35,19 @@ test innn
         <li class="breadcrumb-item">
             <i class="ki-duotone ki-right fs-4 text-gray-700 mx-n1"></i>
         </li>
-        <li class="breadcrumb-item text-gray-700 fw-bold lh-1">الرئيسية</li>
+        <li class="breadcrumb-item text-gray-700 fw-bold lh-1">HOME</li>
     </ul>
 </div>
 @endsection
 
 @section('content')
 <div id="kt_app_content_container" class="app-container container-fluid text-center" >
-    <h1 class="text-dark fw-bolder fs-1 lh-0 ">بِسْمِ اللَّـهِ الرَّحْمَـٰنِ الرَّحِيمِ</h1>
-    <h2 class="fs-3 text-success m-3"  style="margin-top: 20px !important;">السلام عليكم</h2>
     
-    <!-- إضافة اللوغو في الوسط -->
+    <h2 class="fw-bold text-gray-800">Welcome to Roomie</h2>
     <div class="logo">
-        <img src="{{ asset('assets/images/ORG-1024x844.png') }}" alt="Logo" style="max-width: 250px;">
+       <img class="mx-auto h-150px h-lg-175px mb-4" src="assets/media/misc/saul-welcome.png" alt="" />
+								<!--end::Illustration-->
+								
     </div>
 </div>
 @endsection

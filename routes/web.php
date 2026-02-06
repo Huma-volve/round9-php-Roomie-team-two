@@ -9,7 +9,7 @@ Route::get('/', function () {
 require __DIR__.'/auth.php';
 
 
-Route::get('/test', function () {
+Route::get('/dashboard', function () {
     return view('blank'); 
 });
 

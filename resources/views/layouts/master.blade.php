@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en" direction="rtl" dir="rtl" style="direction: rtl">
+<html lang="en" direction="ltr" dir="ltr" style="direction: ltr">
 	<!--begin::Head-->
 	<head><base href=""/>
 		<title>@yield('title')</title>
