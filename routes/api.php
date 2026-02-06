@@ -5,6 +5,8 @@ use App\Http\Controllers\Home\HomeController;
 use App\Http\Controllers\Home\SearchController;
 use App\Http\Controllers\RoomDetails\RoomDetailsController;
 use App\Http\Controllers\Api\BookingController;
+use App\Http\Controllers\Api\PaymentController;
+use App\Http\Controllers\Api\StripeWebhookController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\NewPasswordController;
@@ -15,7 +17,7 @@ use App\Http\Controllers\Auth\OtpController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\ReviewsController;
 use App\Http\Controllers\UserController;
- use App\Http\Controllers\Api\ContactController;
+use App\Http\Controllers\Api\ContactController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Profile\ProfileController;
@@ -99,18 +101,18 @@ Route::get('/auth/google/redirect', [SocialAuthController::class, 'redirectToGoo
 Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
 
 Route::middleware('auth:sanctum')->group(function () {
-    
+
     // Profile Routes
     Route::prefix('profile')->group(function () {
         // Get profile
         Route::get('/', [ProfileController::class, 'show']);
-        
+
         // Update basic info (name, job_title, gender, aboutme, image)
         Route::post('/basic-info', [ProfileController::class, 'updateBasicInfo']);
-        
+
         // Update password
         Route::post('/password', [ProfileController::class, 'updatePassword']);
-        
+
         // Delete profile image
         Route::delete('/image', [ProfileController::class, 'deleteImage']);
     });
@@ -131,7 +133,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/', [LifestyleTraitController::class, 'destroy']);                // Delete
     });
 
-   Route::prefix('verification/email')->group(function () {
+    Route::prefix('verification/email')->group(function () {
         Route::post('/send', [EmailVerificationController::class, 'send']);
         Route::post('/verify', [EmailVerificationController::class, 'verify']);
         Route::get('/status', [EmailVerificationController::class, 'status']);
@@ -148,21 +150,21 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('verification/id')->group(function () {
         Route::post('/upload', [IdVerificationController::class, 'upload']);
         Route::get('/status', [IdVerificationController::class, 'status']);
-        
+
         // Admin routes
         Route::post('/approve/{userId}', [IdVerificationController::class, 'approve'])
-            ->middleware('admin'); 
+            ->middleware('admin');
         Route::post('/reject/{userId}', [IdVerificationController::class, 'reject'])
             ->middleware('admin');
     });
 
-   
 
-Route::post('/contact', [ContactController::class, 'store']);
+
+    Route::post('/contact', [ContactController::class, 'store']);
 });
 
 // ---------------------------
-// Chat Routes 
+// Chat Routes
 // ---------------------------
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/conversations', [ConversationController::class, 'index']);
@@ -174,21 +176,37 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 // ---------------------------
-// Bookings Routes (Auth Required)
+// Bookings And Payments Routes (Auth Required)
 // ---------------------------
 Route::middleware('auth:sanctum')->group(function () {
+    // Booking Management Routes
     Route::post('booking/calculate-price', [BookingController::class, 'calculateTotalPrice']);
     Route::post('bookings', [BookingController::class, 'store']);
     Route::get('bookings', [BookingController::class, 'getUserBookings']);
     Route::get('bookings/{booking}', [BookingController::class, 'show']);
     Route::delete('bookings/{booking}', [BookingController::class, 'cancel']);
+
+    // Payment Routes
+    Route::post('payments/initiate', [PaymentController::class, 'initiatePayment']);
+    Route::post('payments/confirm', [PaymentController::class, 'confirmPayment']);
+    Route::get('payments/user', [PaymentController::class, 'userPayments']);
+    Route::get('payments/{payment}', [PaymentController::class, 'show']);
+    Route::get('payments/{payment}/download-invoice', [PaymentController::class, 'downloadInvoice']);
+    Route::get('/payments/{payment}/summary', [PaymentController::class, 'paymentSummary']);
 });
-// --------------------------- 
-// Review Routes 
+
+// ---------------------------
+// Stripe Webhook Route
+// ---------------------------
+Route::post('webhooks/stripe', [StripeWebhookController::class, 'handleWebhook'])
+    ->withoutMiddleware(['auth:sanctum', 'verified']);
+
+// ---------------------------
+// Review Routes
 // ---------------------------
 Route::middleware('auth:sanctum')->group(function () {
-Route::post('/bookings/{booking_id}/reviews', [ReviewsController::class, 'create']);
-Route::put('/reviews/{review_id}', [ReviewsController::class, 'update']);
-Route::delete('/reviews/{review_id}', [ReviewsController::class, 'delete']);
-Route::get('/my-reviews', [ReviewsController::class, 'myReviews']);
+    Route::post('/bookings/{booking_id}/reviews', [ReviewsController::class, 'create']);
+    Route::put('/reviews/{review_id}', [ReviewsController::class, 'update']);
+    Route::delete('/reviews/{review_id}', [ReviewsController::class, 'delete']);
+    Route::get('/my-reviews', [ReviewsController::class, 'myReviews']);
 });
