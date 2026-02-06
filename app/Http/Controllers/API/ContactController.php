@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\ContactMessageReceived as ContactMessageReceivedEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ContactRequest;
 use App\Models\ContactMessage;
-use App\Notifications\ContactMessageReceived;
-use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\RateLimiter;
 
 class ContactController extends Controller
@@ -32,7 +31,9 @@ class ContactController extends Controller
                 'ip_address' => $request->ip()
             ]);
 
-           
+            // 🔥 إطلاق Event لإرسال الإشعار للأدمن
+            event(new ContactMessageReceivedEvent($message));
+
             // تسجيل محاولة الإرسال
             RateLimiter::hit($key, 300); // 5 دقائق
 
