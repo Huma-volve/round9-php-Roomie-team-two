@@ -10,6 +10,7 @@ class Booking extends Model
         'user_id',
         'property_id',
         'room_id',
+        'phone',
         'check_in',
         'check_out',
         'total_price',
@@ -41,6 +42,11 @@ class Booking extends Model
     }
     public function payment()
     {
-        return $this->hasOne(Payment::class);
+        return $this->hasOne(Payment::class)->withDefault();
+    }
+
+    public function getNightsCount(): int
+    {
+        return $this->check_out->diffInDays($this->check_in);
     }
 }

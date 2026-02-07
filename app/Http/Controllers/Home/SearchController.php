@@ -16,19 +16,20 @@ class SearchController extends Controller
     {
         $this->searchServices = $searchServices;
     }
-    public function search(SearchRequest $request)
+    public function getSearchAvailableRooms(SearchRequest $request)
     {
         try {
-            $result = $this->searchServices->search($request);
+            $result = $this->searchServices->searchAvailableRooms($request);
 
             return response()->json([
                 'message' => 'Search completed successfully',
                 'data' => [
-                    'current_page' => $result->currentPage(),
-                    'per_page' => $result->perPage(),
-                    'total' => $result->total(),
-                    'last_page' => $result->lastPage(),
-                    'items' => $result->items(),
+                    // 'current_page' => $result->currentPage(),
+                    // 'per_page' => $result->perPage(),
+                    // 'total' => $result->total(),
+                    // 'last_page' => $result->lastPage(),
+                    // 'items' => $result->items(),
+                    $result 
                 ],
             ], 200);
         } catch (\Exception $e) {

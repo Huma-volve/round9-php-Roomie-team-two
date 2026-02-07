@@ -56,7 +56,7 @@ class BookingController extends Controller
         } catch (\Exception $e) {
             return $this->errorResponse(
                 $e->getMessage(),
-                method_exists($e, 'getCode') && $e->getCode() ? $e->getCode() : 400,
+                400,
                 null
             );
         }
@@ -103,9 +103,9 @@ class BookingController extends Controller
     {
         try {
             // Check authorization
-            // if ($booking->user_id !== auth()->id()) {
-            //     return $this->errorResponse('Unauthorized', 403, null);
-            // }
+            if ($booking->user_id !== auth()->id()) {
+                return $this->errorResponse('Unauthorized', 403, null);
+            }
 
             $this->bookingService->cancelBooking($booking);
 
