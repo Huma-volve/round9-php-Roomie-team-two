@@ -53,7 +53,6 @@
                         <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">User</th>
                         <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Role</th>
                         <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                        <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Bookings</th>
                         <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Joined</th>
                         <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
@@ -103,15 +102,6 @@
                                         <span class="w-1.5 h-1.5 rounded-full bg-yellow-600"></span> Pending
                                     </span>
                                 @endif
-                            </td>
-                            <td class="px-6 py-4">
-                                <a href="{{ route('admin.user.bookings', $user) }}">
-                                    <span
-                                        class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-indigo-600"></span>
-                                        {{ $user->bookings->count() }}
-                                    </span>
-                                </a>
                             </td>
                             <td class="px-6 py-4 text-sm text-gray-500">
                                 {{ $user->created_at->format('M d, Y') }}
