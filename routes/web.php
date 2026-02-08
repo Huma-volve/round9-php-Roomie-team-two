@@ -55,9 +55,16 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->as('admin.')->group(funct
     Route::resource('rooms', RoomController::class);
 });
 
+Route::middleware(['auth', 'admin'])->prefix('admin')->as('admin.')->group(function () {
+        Route::view('/chat', 'chat.index')->name('chat');
+    }
+);
+
 Route::get('/dashboard', function () {
     return view('blank');
 });
+
+
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('booking/calculate-price', [BookingController::class, 'calculateTotalPrice']);

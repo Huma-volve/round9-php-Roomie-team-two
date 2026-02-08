@@ -28,9 +28,9 @@ class AuthenticatedSessionController extends Controller
         $user = Auth::user();
 
         // Check if email verified
-        if (!$user->is_verified) {
-            return apiResponse(null, 'Please verify your email first.', false, 403);
-        }
+        // if (!$user->is_verified) {
+        //     return apiResponse(null, 'Please verify your email first.', false, 403);
+        // }
 
         // Create token for API
         $token = $user->createToken('auth_token')->plainTextToken;
