@@ -40,6 +40,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->as('admin.')->group(funct
     }
 );
 
+Route::get('/dashboard', function () {
+    return view('blank'); 
+});
 
 
 
