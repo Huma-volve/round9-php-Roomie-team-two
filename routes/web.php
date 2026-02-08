@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminPaymentController;
+use App\Http\Controllers\Admin\PropertyController;
+use App\Http\Controllers\Admin\RoomController;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Admin\AdminAuthController;
@@ -48,13 +50,15 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::put('payments/{payment}/status', [AdminPaymentController::class, 'updateStatus'])->name('admin.payments.update-status');
 });
 
+Route::middleware(['auth', 'admin'])->prefix('admin')->as('admin.')->group(function () {
+    Route::resource('properties', PropertyController::class);
+    Route::resource('rooms', RoomController::class);
+});
 
-
-
-// Route::middleware('auth:sanctum')->group(function () {
-//     Route::post('booking/calculate-price', [BookingController::class, 'calculateTotalPrice']);
-//     Route::post('bookings', [BookingController::class, 'store']);
-//     Route::get('bookings', [BookingController::class, 'getUserBookings']);
-//     Route::get('bookings/{booking}', [BookingController::class, 'show']);
-//     Route::delete('bookings/{booking}', [BookingController::class, 'cancel']);
-// });
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('booking/calculate-price', [BookingController::class, 'calculateTotalPrice']);
+    Route::post('bookings', [BookingController::class, 'store']);
+    Route::get('bookings', [BookingController::class, 'getUserBookings']);
+    Route::get('bookings/{booking}', [BookingController::class, 'show']);
+    Route::delete('bookings/{booking}', [BookingController::class, 'cancel']);
+});

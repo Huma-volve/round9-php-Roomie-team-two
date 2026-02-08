@@ -8,12 +8,13 @@
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
         <script src="https://cdn.tailwindcss.com"></script>
+
         <style>
             body {
                 font-family: 'Outfit', sans-serif;
             }
         </style>
-        @stack('styles')
+        @yield('styles')
     </head>
 
     <body class="bg-gray-50">
@@ -23,11 +24,9 @@
                 class="w-64 bg-slate-900 text-white flex flex-col fixed h-full z-10 transition-transform duration-300">
                 <div class="p-6 border-b border-slate-800">
                     <h1 class="text-2xl font-bold text-white">Roomie<span class="text-indigo-500">.</span></h1>
-                    <p class="text-xs text-slate-400 mt-1">Admin Dashboard</p>
                 </div>
 
                 <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
-                    <!-- Dashboard -->
                     <a href="{{ route('admin.dashboard') }}"
                         class="flex items-center gap-3 px-4 py-3 {{ request()->routeIs('admin.dashboard') ? 'bg-indigo-600 shadow-lg shadow-indigo-500/20 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-800' }} rounded-xl transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -38,7 +37,6 @@
                         Dashboard
                     </a>
 
-                    <!-- Users -->
                     <a href="{{ route('admin.users.index') }}"
                         class="flex items-center gap-3 px-4 py-3 {{ request()->routeIs('admin.users.*') ? 'bg-indigo-600 shadow-lg shadow-indigo-500/20 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-800' }} rounded-xl transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -47,6 +45,25 @@
                             </path>
                         </svg>
                         Users
+                    </a>
+                    {{-- Properties --}}
+                    <a href="{{ route('admin.properties.index') }}"
+                        class="flex items-center gap-3 px-4 py-3 {{ request()->routeIs('admin.properties.*') ? 'bg-indigo-600 shadow-lg shadow-indigo-500/20 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-800' }} rounded-xl transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 10l9-7 9 7v10a2 2 0 01-2 2h-4a2 2 0 01-2-2v-4H9v4a2 2 0 01-2 2H3a2 2 0 01-2-2V10z" />
+                        </svg>
+                        Properties
+                    </a>
+
+                    {{-- Rooms --}}
+                    <a href="{{ route('admin.rooms.index') }}"
+                        class="flex items-center gap-3 px-4 py-3 {{ request()->routeIs('admin.rooms.*') ? 'bg-indigo-600 shadow-lg shadow-indigo-500/20 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-800' }} rounded-xl transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 11V7a2 2 0 012-2h12a2 2 0 012 2v4M4 11h16M4 11v6m16-6v6M2 17h20" />
+                        </svg>
+                        Rooms
                     </a>
 
                     <!-- Bookings -->
@@ -94,7 +111,7 @@
             </main>
         </div>
 
-        @stack('scripts')
+        @yield('scripts')
     </body>
 
 </html>

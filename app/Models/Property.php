@@ -39,7 +39,7 @@ class Property extends Model
         return $this->belongsTo(User::class, 'admin_id');
     }
 
-    public function images()
+    public function propertyImages()
     {
         return $this->hasMany(PropertyImage::class);
     }

@@ -38,6 +38,11 @@ class Room extends Model
         return $this->hasMany(RoomImage::class);
     }
 
+       public function mainImage()
+    {
+        return $this->hasOne(RoomImage::class)->where('is_main', true);
+    }
+
     public function loans()
     {
         return $this->hasMany(RoomLoan::class);
