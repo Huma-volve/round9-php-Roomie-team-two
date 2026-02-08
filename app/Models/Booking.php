@@ -47,6 +47,6 @@ class Booking extends Model
 
     public function getNightsCount(): int
     {
-        return $this->check_out->diffInDays($this->check_in);
+        return $this->check_in->diffInDays($this->check_out);
     }
 }

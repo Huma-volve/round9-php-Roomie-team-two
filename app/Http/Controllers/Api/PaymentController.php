@@ -31,9 +31,9 @@ class PaymentController extends Controller
         try {
             $booking = Booking::findOrFail($request->booking_id);
             // Check authorization
-            // if ($booking->user_id !== auth()->id()) {
-            //     return $this->errorResponse('Unauthorized', 403);
-            // }
+            if ($booking->user_id !== Auth::id() && Auth::user()->role !== 'admin') {
+                return $this->errorResponse('Unauthorized', 403);
+            }
             // Check if booking has already been paid
             $bookingPayment = $this->paymentService->validatePaymentHasBeenInitiated($booking);
             if ($bookingPayment) {
@@ -74,7 +74,7 @@ class PaymentController extends Controller
     public function show(Payment $payment): JsonResponse
     {
         try {
-            if ($payment->booking->user_id !== Auth::id() && Auth::user()->role !== 'admin') {
+            if ($payment->booking->user_id !== Auth::id()) {
                 return $this->errorResponse('Unauthorized', 403);
             }
             return $this->successResponse('Payment details retrieved successfully', 200, [
@@ -95,7 +95,7 @@ class PaymentController extends Controller
     {
         try {
             $payments = Payment::whereHas('booking', function ($query) {
-                $query->where('user_id', 1);
+                $query->where('user_id', Auth::id());
             })
                 ->with('booking', 'personalDetails', 'installmentSchedules')
                 ->orderBy('created_at', 'desc')
@@ -116,7 +116,7 @@ class PaymentController extends Controller
     public function downloadInvoice(Payment $payment)
     {
         try {
-            if ($payment->booking->user_id !== Auth::id() && Auth::user()->role !== 'admin') {
+            if ($payment->booking->user_id !== Auth::id()) {
                 return $this->errorResponse('Unauthorized', 403);
             }
             $pdfPath = $this->invoiceService->generatePdf($payment);
@@ -130,7 +130,7 @@ class PaymentController extends Controller
     public function paymentSummary(Payment $payment)
     {
         try {
-            if ($payment->booking->user_id !== Auth::id() && Auth::user()->role !== 'admin') {
+            if ($payment->booking->user_id !== Auth::id()) {
                 return $this->errorResponse('Unauthorized', 403);
             }
 
