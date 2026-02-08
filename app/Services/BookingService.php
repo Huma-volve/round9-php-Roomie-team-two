@@ -99,7 +99,6 @@ class BookingService
                     'check_out' => $checkOut,
                     'total_price' => $pricing_data['total_price'],
                     'move_in_protection' => $request->move_in_protection ?? false,
-                    'move_in_protection_price' => $pricing_data['move_in_protection'] ?? 0,
                     'special_requests' => $request->special_requests ?? null,
                     'status' => 'pending'
                 ]);
@@ -179,10 +178,6 @@ class BookingService
      *
      * @param Property $property
      * @param int|null $room_id
-     *
-     * @throws \Exception if room selection is required for room rentals and room_id is null
-     * @throws \Exception if room_id is provided but room is not found
-     * @throws \Exception if room_id is provided but room does not belong to the property
      */
     protected function validatePropertyAndRoom(Property $property, ?int $room_id): void
     {

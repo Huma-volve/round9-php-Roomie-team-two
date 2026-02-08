@@ -20,4 +20,9 @@ class PaymentRepository
     {
         return Payment::where('stripe_payment_intent_id', $paymentIntentId)->first();
     }
+
+    public function findById($id): ?Payment
+    {
+        return Payment::findOrFail($id);
+    }
 }
