@@ -14,7 +14,7 @@ class SendNewReviewNotification
     public function handle(ReviewCreated $event): void
     {
         $review = $event->review;
-        $admins = User::where('role', 'admin')->get();
+       $admins = User::where('is_admin', true)->get();
 
         foreach ($admins as $admin) {
             AdminNotification::create([
@@ -25,7 +25,7 @@ class SendNewReviewNotification
                 'notifiable_type' => get_class($review),
                 'notifiable_id' => $review->id,
                 'priority' => 'low',
-                'action_url' => route('admin.reviews.show', $review->id),
+                // 'action_url' => route('admin.reviews.show', $review->id),
                 'data' => [
                     'review_id' => $review->id,
                     'rating' => $review->rating,

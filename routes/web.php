@@ -6,7 +6,7 @@ use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\BookingController;
-use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\Admin\NotificationController;
 
 Route::get('/', function () {
     return redirect()->route('admin.login');
@@ -19,15 +19,16 @@ Route::prefix('admin')->group(function () {
     Route::post('/logout', [AdminAuthController::class, 'destroy'])->name('admin.logout')->middleware('auth');
 });
 
-Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
-    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
-    Route::get('/users', [AdminUserController::class, 'index'])->name('admin.users.index');
-    Route::get('/users/create', [AdminUserController::class, 'create'])->name('admin.users.create');
-    Route::post('/users', [AdminUserController::class, 'store'])->name('admin.users.store');
-    Route::get('/users/{user}/edit', [AdminUserController::class, 'edit'])->name('admin.users.edit');
-    Route::put('/users/{user}', [AdminUserController::class, 'update'])->name('admin.users.update');
-    Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
+    Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+    Route::get('/users/create', [AdminUserController::class, 'create'])->name('users.create');
+    Route::post('/users', [AdminUserController::class, 'store'])->name('users.store');
+    Route::get('/users/{user}/edit', [AdminUserController::class, 'edit'])->name('users.edit');
+    Route::put('/users/{user}', [AdminUserController::class, 'update'])->name('users.update');
+    Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
+    
     // ============================
     // 🔔 Notification Routes
     // ============================
@@ -36,21 +37,20 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
         Route::get('/', [NotificationController::class, 'index'])->name('index');
         
         // تعليم إشعار واحد مقروء
-        Route::post('/{id}/read', [NotificationController::class, 'markAsRead'])->name('read');
+        Route::post('/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('mark-as-read');
         
         // تعليم كل الإشعارات مقروءة
-        Route::post('/read-all', [NotificationController::class, 'markAllAsRead'])->name('readAll');
+        Route::post('/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])->name('mark-all-as-read');
         
         // حذف إشعار
         Route::delete('/{id}', [NotificationController::class, 'destroy'])->name('destroy');
         
         // جلب عدد الإشعارات الغير مقروءة (AJAX)
-        Route::get('/unread-count', [NotificationController::class, 'getUnreadCount'])->name('unreadCount');
+        Route::get('/unread-count', [NotificationController::class, 'getUnreadCount'])->name('unread-count');
         
         // جلب آخر 10 إشعارات (للـ Dropdown)
         Route::get('/recent', [NotificationController::class, 'getRecent'])->name('recent');
-});
-
+    });
 
     // Other admin routes...
 });

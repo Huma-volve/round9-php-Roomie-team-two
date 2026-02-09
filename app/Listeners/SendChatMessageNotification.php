@@ -23,7 +23,7 @@ class SendChatMessageNotification
             'notifiable_type' => get_class($conversation),
             'notifiable_id' => $conversation->id,
             'priority' => 'high',
-            'action_url' => route('admin.chats.show', $conversation->id),
+            // 'action_url' => route('admin.chats.show', $conversation->id),
             'data' => [
                 'conversation_id' => $conversation->id,
                 'tenant_name' => $conversation->tenant->first_name . ' ' . $conversation->tenant->last_name,

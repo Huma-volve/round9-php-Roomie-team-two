@@ -14,7 +14,7 @@ class SendBookingCancelledNotification
     public function handle(BookingCancelled $event): void
     {
         $booking = $event->booking;
-        $admins = User::where('role', 'admin')->get();
+        $admins = User::where('is_admin', true)->get();
 
         foreach ($admins as $admin) {
             AdminNotification::create([
@@ -25,7 +25,7 @@ class SendBookingCancelledNotification
                 'notifiable_type' => get_class($booking),
                 'notifiable_id' => $booking->id,
                 'priority' => 'medium',
-                'action_url' => route('admin.bookings.show', $booking->id),
+                // 'action_url' => route('admin.bookings.show', $booking->id),
                 'data' => [
                     'booking_id' => $booking->id,
                     'user_name' => $booking->user->first_name . ' ' . $booking->user->last_name,

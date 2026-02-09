@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AdminNotification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class NotificationController extends Controller
 {
@@ -38,51 +39,80 @@ class NotificationController extends Controller
             ->unread()
             ->count();
 
-        return view('admin.notifications.index', compact('notifications', 'unreadCount', 'filter', 'type'));
+        return view('admin.notifications', compact('notifications', 'unreadCount', 'filter', 'type'));
     }
 
     /**
      * Mark single notification as read
      */
     public function markAsRead($id)
+
     {
-        $notification = AdminNotification::where('admin_id', auth()->id())
-            ->findOrFail($id);
-        
-        $notification->update([
-            'is_read' => true,
-            'read_at' => now(),
-        ]);
-
-        // بث تحديث في الوقت الفعلي
-        broadcast(new \App\Events\NotificationMarkedAsRead($notification))->toOthers();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'تم تعليم الإشعار كمقروء'
-        ]);
-    }
-
-    /**
-     * Mark all as read - Query مباشر
-     */
-    public function markAllAsRead()
-    {
-        $updated = AdminNotification::where('admin_id', auth()->id())
-            ->unread()
-            ->update([
+        dd($id);
+        try {
+            $notification = AdminNotification::where('admin_id', auth()->id())
+                ->findOrFail($id);
+            
+            $notification->update([
                 'is_read' => true,
                 'read_at' => now(),
             ]);
 
-        // بث تحديث العدد
-        broadcast(new \App\Events\AllNotificationsMarkedAsRead(auth()->id()))->toOthers();
+            Log::info('Notification marked as read', [
+                'notification_id' => $id,
+                'admin_id' => auth()->id()
+            ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'تم تعليم جميع الإشعارات كمقروءة',
-            'updated_count' => $updated
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Notification marked as read successfully'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error marking notification as read', [
+                'error' => $e->getMessage(),
+                'notification_id' => $id
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to mark notification as read'
+            ], 500);
+        }
+    }
+
+    /**
+     * Mark all as read
+     */
+    public function markAllAsRead()
+    {
+        try {
+            $updated = AdminNotification::where('admin_id', auth()->id())
+                ->unread()
+                ->update([
+                    'is_read' => true,
+                    'read_at' => now(),
+                ]);
+
+            Log::info('All notifications marked as read', [
+                'count' => $updated,
+                'admin_id' => auth()->id()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'All notifications marked as read',
+                'updated_count' => $updated
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error marking all notifications as read', [
+                'error' => $e->getMessage()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to mark all as read'
+            ], 500);
+        }
     }
 
     /**
@@ -90,18 +120,32 @@ class NotificationController extends Controller
      */
     public function destroy($id)
     {
-        $notification = AdminNotification::where('admin_id', auth()->id())
-            ->findOrFail($id);
-        
-        $notification->delete();
+        try {
+            $notification = AdminNotification::where('admin_id', auth()->id())
+                ->findOrFail($id);
+            
+            $notification->delete();
 
-        // بث حدث الحذف
-        broadcast(new \App\Events\NotificationDeleted($id, auth()->id()))->toOthers();
+            Log::info('Notification deleted', [
+                'notification_id' => $id,
+                'admin_id' => auth()->id()
+            ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'تم حذف الإشعار'
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Notification deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error deleting notification', [
+                'error' => $e->getMessage(),
+                'notification_id' => $id
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete notification'
+            ], 500);
+        }
     }
 
     /**

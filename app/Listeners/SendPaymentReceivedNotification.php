@@ -15,8 +15,7 @@ class SendPaymentReceivedNotification
     {
         $payment = $event->payment;
         $booking = $event->booking;
-        $admins = User::where('role', 'admin')->get();
-
+        $admins = User::where('is_admin', true)->get();
         foreach ($admins as $admin) {
             AdminNotification::create([
                 'admin_id' => $admin->id,
@@ -26,7 +25,7 @@ class SendPaymentReceivedNotification
                 'notifiable_type' => get_class($booking),
                 'notifiable_id' => $booking->id,
                 'priority' => 'medium',
-                'action_url' => route('admin.bookings.show', $booking->id),
+                // 'action_url' => route('admin.bookings.show', $booking->id),
                 'data' => [
                     'payment_id' => $payment->id,
                     'booking_id' => $booking->id,

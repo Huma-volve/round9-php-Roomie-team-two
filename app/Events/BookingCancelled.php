@@ -3,14 +3,14 @@
 namespace App\Events;
 
 use App\Models\Booking;
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow; // ✅ غيّر
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
-class BookingCancelled implements ShouldBroadcast
+class BookingCancelled implements ShouldBroadcastNow // ✅ غيّر
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -19,11 +19,14 @@ class BookingCancelled implements ShouldBroadcast
     public function __construct(Booking $booking)
     {
         $this->booking = $booking;
+        
+        // ✅ إضافة Log
+        Log::info('BookingCancelled event created', [
+            'booking_id' => $booking->id,
+            'guest_name' => $booking->guest_name
+        ]);
     }
 
-    /**
-     * القنوات التي سيتم البث عليها
-     */
     public function broadcastOn(): array
     {
         return [
@@ -31,20 +34,14 @@ class BookingCancelled implements ShouldBroadcast
         ];
     }
 
-    /**
-     * اسم الحدث الذي سيُبث
-     */
     public function broadcastAs(): string
     {
         return 'booking.cancelled';
     }
 
-    /**
-     * البيانات التي سيتم إرسالها
-     */
     public function broadcastWith(): array
     {
-        return [
+        $data = [
             'id' => $this->booking->id,
             'guest_name' => $this->booking->guest_name,
             'property_name' => $this->booking->property->name ?? 'غير محدد',
@@ -53,5 +50,10 @@ class BookingCancelled implements ShouldBroadcast
             'type' => 'booking_cancelled',
             'created_at' => now()->toDateTimeString(),
         ];
+        
+        // ✅ إضافة Log
+        Log::info('Broadcasting booking cancellation data', $data);
+        
+        return $data;
     }
 }

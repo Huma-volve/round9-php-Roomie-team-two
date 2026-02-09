@@ -29,7 +29,7 @@ class AdminAuthController extends Controller
                 ]);
             }
 
-            return redirect()->intended('/admin/dashboard');
+            return redirect()->intended('/dashboard');
         }
 
         return back()->withErrors([

@@ -5,11 +5,12 @@ namespace App\Events;
 use App\Models\ContactMessage;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow; // ✅ غيّر هنا
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
-class ContactMessageReceived implements ShouldBroadcast
+class ContactMessageReceived implements ShouldBroadcastNow // ✅ غيّر هنا
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -18,11 +19,13 @@ class ContactMessageReceived implements ShouldBroadcast
     public function __construct(ContactMessage $contactMessage)
     {
         $this->contactMessage = $contactMessage;
+        
+        Log::info('ContactMessageReceived event created', [
+            'contact_id' => $contactMessage->id,
+            'contact_name' => $contactMessage->name
+        ]);
     }
 
-    /**
-     * القنوات التي سيتم البث عليها
-     */
     public function broadcastOn(): array
     {
         return [
@@ -30,20 +33,14 @@ class ContactMessageReceived implements ShouldBroadcast
         ];
     }
 
-    /**
-     * اسم الحدث الذي سيُبث
-     */
     public function broadcastAs(): string
     {
         return 'contact.received';
     }
 
-    /**
-     * البيانات التي سيتم إرسالها
-     */
     public function broadcastWith(): array
     {
-        return [
+        $data = [
             'id' => $this->contactMessage->id,
             'name' => $this->contactMessage->name,
             'email' => $this->contactMessage->email,
@@ -52,5 +49,9 @@ class ContactMessageReceived implements ShouldBroadcast
             'type' => 'contact_message',
             'created_at' => now()->toDateTimeString(),
         ];
+        
+        Log::info('Broadcasting contact message data', $data);
+        
+        return $data;
     }
 }
