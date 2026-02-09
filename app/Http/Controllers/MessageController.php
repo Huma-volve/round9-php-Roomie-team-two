@@ -17,8 +17,12 @@ class MessageController extends Controller
      */
     public function store(Request $request, $id)
     {
-        $conversation = Conversation::findOrFail($id);
-        
+        $conversation = Conversation::find($id);
+
+        if (!$conversation) {
+            return apiResponse([], 'Conversation not found', false, 404);
+        }
+
         $request->validate([
             'message_body' => 'required|string|max:1000',
         ]);
@@ -29,7 +33,10 @@ class MessageController extends Controller
             'message_body' => $request->message_body,
         ]);
 
-        // تحديث آخر رسالة في المحادثة
+        if (!$message) {
+            return apiResponse([], 'Message not sent', false, 400);
+        }
+
         $conversation->update([
             'last_message' => $request->message_body,
             'last_message_at' => now(),
@@ -49,6 +56,8 @@ class MessageController extends Controller
             true, 
             200
         );
+        broadcast(new MessageSent($message))->toOthers();
+        return apiResponse(MessageStoreResource::make($message), 'Message sent successfully', true, 200);
     }
 
     /**

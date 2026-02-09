@@ -21,7 +21,7 @@ class SearchServices
     /**
      * Enhanced search method with location support and search history
      */
-    public function search(Request $request)
+    public function searchAvailableRooms(Request $request)
     {
         $query = Room::query()
             ->select([
@@ -47,47 +47,8 @@ class SearchServices
             ->where('properties.status', 'available')
             ->where('rooms.status', 'available');
 
-        // 1) Property Type
-        if ($request->property_type) {
-            $query->where('properties.rent_type', $request->property_type);
-        }
-
-        // 2) BHK (only applicable for apartments)
-        if ($request->bhk) {
-            $query->where('properties.num_rooms', $request->bhk);
-        }
-
-        // 3) Budget
-        if ($request->min_budget) {
-            $query->where('rooms.price_per_night', '>=', $request->min_budget);
-        }
-
-        if ($request->max_budget) {
-            $query->where('rooms.price_per_night', '<=', $request->max_budget);
-        }
-
-        // 4) Locality
-        if ($request->locality) {
-            $query->where(function ($q) use ($request) {
-                $q->where('properties.title', 'LIKE', "%{$request->locality}%")
-                  ->orWhere('properties.description', 'LIKE', "%{$request->locality}%");
-            });
-        }
-
-        // 5) Location-based search (nearest properties)
-        if ($request->latitude && $request->longitude) {
-            $radius = $request->radius_km ?? 10;
-
-            // Use location service to filter by distance
-            $query->whereRaw("
-                (6371 * acos(cos(radians(?)) * cos(radians(properties.latitude)) *
-                cos(radians(properties.longitude) - radians(?)) +
-                sin(radians(?)) * sin(radians(properties.latitude)))) <= ?
-            ", [$request->latitude, $request->longitude, $request->latitude, $radius]);
-        }
-
-        $perPage = $request->per_page ?? 20;
-        $data = $query->paginate($perPage);
+       
+        $data = $query->get();
 
         // Save search history if user is authenticated
         if (Auth::check()) {

@@ -87,6 +87,7 @@ class BookingService
                 $request->move_in_protection ?? false
             );
 
+
             // Create booking with transaction
             $booking = DB::transaction(function () use ($request, $checkIn, $checkOut, $pricing_data) {
                 $booking = Booking::create([
@@ -98,13 +99,10 @@ class BookingService
                     'check_out' => $checkOut,
                     'total_price' => $pricing_data['total_price'],
                     'move_in_protection' => $request->move_in_protection ?? false,
-                    'move_in_protection_price' => $pricing_data['move_in_protection'] ?? 0,
-                    'service_fee' => $pricing_data['service_fee'],
-                    'tax' => $pricing_data['taxes'],
                     'special_requests' => $request->special_requests ?? null,
-                    'cancellation_policy' => $request->cancellation_policy ?? 'moderate',
                     'status' => 'pending'
                 ]);
+
 
                 // Create guests
                 foreach ($request->guests as $guest) {
@@ -180,12 +178,7 @@ class BookingService
      *
      * @param Property $property
      * @param int|null $room_id
-     *
-     * @throws \Exception if room selection is required for room rentals and room_id is null
-     * @throws \Exception if room_id is provided but room is not found
-     * @throws \Exception if room_id is provided but room does not belong to the property
      */
-    /*******  98470b50-685c-4fda-91cc-2cfb590e6347  *******/
     protected function validatePropertyAndRoom(Property $property, ?int $room_id): void
     {
         // If room rental, room_id is required

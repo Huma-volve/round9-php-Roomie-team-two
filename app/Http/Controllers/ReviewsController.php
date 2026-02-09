@@ -18,14 +18,14 @@ class ReviewsController extends Controller
      */
     public function create($booking_id, ReviewRequest $request)
     {
-        // التحقق من أن الحجز انتهى
-        $booking = Booking::where('id', $booking_id)
-            ->where('user_id', auth()->id())
-            ->where('check_out', '<', now())
-            ->first();
+        $booking = Booking::find($booking_id);
 
         if (!$booking) {
-            return $this->errorResponse('You cannot add a review until the stay has ended.', 400);
+            return $this->errorResponse('Booking not found.');
+        }
+
+        if ($booking->check_out >= now()) {
+            return $this->errorResponse('You cannot add a review until the stay has ended.');
         }
 
         // التحقق من عدم وجود مراجعة سابقة لنفس الـ Property

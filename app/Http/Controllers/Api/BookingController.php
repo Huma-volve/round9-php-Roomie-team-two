@@ -12,6 +12,7 @@ use App\Services\BookingService;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class BookingController extends Controller
 {
@@ -67,7 +68,7 @@ class BookingController extends Controller
         } catch (\Exception $e) {
             return $this->errorResponse(
                 $e->getMessage(),
-                method_exists($e, 'getCode') && $e->getCode() ? $e->getCode() : 400,
+                400,
                 null
             );
         }
@@ -79,7 +80,7 @@ class BookingController extends Controller
     public function getUserBookings(): JsonResponse
     {
         try {
-            $bookings = $this->bookingService->getUserBookings(auth()->id());
+            $bookings = $this->bookingService->getUserBookings(Auth::id());
             return $this->successResponse('User bookings retrieved Successfully.', 200, $bookings);
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage(), 400, null);
@@ -92,7 +93,7 @@ class BookingController extends Controller
     public function show(Booking $booking): JsonResponse
     {
         try {
-            if ($booking->user_id !== auth()->id()) {
+            if ($booking->user_id !== Auth::id()) {
                 return $this->errorResponse('Unauthorized', 403, null);
             }
             

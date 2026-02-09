@@ -25,4 +25,10 @@ class Conversation extends Model
     {
         return $this->belongsTo(User::class, 'admin_id');
     }
+
+    public function unreadMessages()
+    {
+        return $this->messages()
+            ->where('is_read', false);
+    }
 }
