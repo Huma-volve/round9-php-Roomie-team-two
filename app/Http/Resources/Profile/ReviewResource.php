@@ -20,7 +20,7 @@ class ReviewResource extends JsonResource
                 'price' => $this->property->price ?? null,
                 'image' => $this->property && $this->property->images && $this->property->images->first()
                     ? url('storage/' . $this->property->images->first()->image_url) 
-                    : null, // ⭐ هنا الحل
+                    : null, 
             ],
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
         ];
