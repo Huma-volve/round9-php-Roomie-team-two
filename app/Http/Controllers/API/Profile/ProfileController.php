@@ -10,6 +10,7 @@ use App\Http\Resources\Profile\VerificationResource;
 use App\Http\Resources\Profile\LifestyleTraitResource;
 use App\Http\Requests\UpdateBasicInfoRequest;
 use App\Http\Requests\UpdatePasswordRequest;
+use App\Http\Resources\Profile\ReviewResource; 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -26,7 +27,8 @@ public function show()
         $user = Auth::user()->load([
             'housingPreferences',
             'verification',
-            'lifestyleTrait'
+            'lifestyleTrait',
+             'reviews.property'
         ]);
 
         return response()->json([
@@ -45,7 +47,9 @@ public function show()
                 ],
                 'housing_preferences' => HousingPreferenceResource::collection($user->housingPreferences),
                 'verification' => $user->verification ? new VerificationResource($user->verification) : null,
-                'lifestyle_trait' => $user->lifestyleTrait ? new LifestyleTraitResource($user->lifestyleTrait) : null, // ✅ عدلت هنا
+                'lifestyle_trait' => $user->lifestyleTrait ? new LifestyleTraitResource($user->lifestyleTrait) : null, 
+                 'reviews' => ReviewResource::collection($user->reviews), // ⭐ المراجعات اللي عملها على الشقق
+
             ]
         ], 200);
     }
