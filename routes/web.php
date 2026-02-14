@@ -9,7 +9,10 @@ use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\AdminBookingController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AdminDashboardController;
-use App\Http\Controllers\Api\BookingController;
+use App\Http\Controllers\BookingController;
+use App\Http\Controllers\Admin\NotificationController;
+use App\Http\Controllers\MessageController;
+use App\Http\Controllers\ReviewsController;
 
 Route::get('/', function () {
     return redirect()->route('admin.login');
@@ -22,17 +25,43 @@ Route::prefix('admin')->group(function () {
     Route::post('/logout', [AdminAuthController::class, 'destroy'])->name('admin.logout')->middleware('auth');
 });
 
-Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
-    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
-    Route::get('/users', [AdminUserController::class, 'index'])->name('admin.users.index');
-    Route::get('/users/create', [AdminUserController::class, 'create'])->name('admin.users.create');
-    Route::post('/users', [AdminUserController::class, 'store'])->name('admin.users.store');
-    Route::get('/users/{user}/edit', [AdminUserController::class, 'edit'])->name('admin.users.edit');
-    Route::put('/users/{user}', [AdminUserController::class, 'update'])->name('admin.users.update');
-    Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
+    Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+    Route::get('/users/create', [AdminUserController::class, 'create'])->name('users.create');
+    Route::post('/users', [AdminUserController::class, 'store'])->name('users.store');
+    Route::get('/users/{user}/edit', [AdminUserController::class, 'edit'])->name('users.edit');
+    Route::put('/users/{user}', [AdminUserController::class, 'update'])->name('users.update');
+    Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
+    
+    // ============================
+    // 🔔 Notification Routes
+    // ============================
+    Route::prefix('notifications')->name('notifications.')->group(function () {
+        // عرض كل الإشعارات
+        Route::get('/', [NotificationController::class, 'index'])->name('index');
+        
+        // تعليم إشعار واحد مقروء
+        Route::post('/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('mark-as-read');
+        
+        // تعليم كل الإشعارات مقروءة
+        Route::post('/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])->name('mark-all-as-read');
+        
+        // حذف إشعار
+        Route::delete('/{id}', [NotificationController::class, 'destroy'])->name('destroy');
+        
+        // جلب عدد الإشعارات الغير مقروءة (AJAX)
+        Route::get('/unread-count', [NotificationController::class, 'getUnreadCount'])->name('unread-count');
+        
+        // جلب آخر 10 إشعارات (للـ Dropdown)
+        Route::get('/recent', [NotificationController::class, 'getRecent'])->name('recent');
+    });
 
+    // Other admin routes...
+});
 
+  
     //======== Bookings Routes ======== //
     Route::get('bookings', [AdminBookingController::class, 'index'])->name('admin.bookings.index');
     Route::get('bookings/{booking}', [AdminBookingController::class, 'show'])->name('admin.bookings.show');
@@ -48,7 +77,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::post('payments/{payment}/mark-failed', [AdminPaymentController::class, 'markAsFailed'])->name('admin.payments.mark-failed');
     Route::post('payments/{payment}/refund', [AdminPaymentController::class, 'refundPayment'])->name('admin.payments.refund');
     Route::put('payments/{payment}/status', [AdminPaymentController::class, 'updateStatus'])->name('admin.payments.update-status');
-});
+
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->as('admin.')->group(function () {
     Route::resource('properties', PropertyController::class);

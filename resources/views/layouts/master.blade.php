@@ -10,7 +10,8 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta property="og:locale" content="ar_EGy" />
 		<meta property="og:type" content="article" />
-		
+		<title>{{ config('app.name') }}</title>
+		 @vite(['resources/css/app.css', 'resources/js/app.js'])
 		<!--begin::Global Stylesheets Bundle(mandatory for all pages)-->
         @include('layouts.head-css')
 		<!--end::Global Stylesheets Bundle-->

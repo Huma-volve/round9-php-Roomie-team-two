@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\BookingCancelled;
+use App\Events\BookingCreated;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BookingCalcTotalPriceRequest;
 use App\Http\Requests\StoreBookingRequest;
@@ -15,7 +17,9 @@ use Illuminate\Support\Facades\Auth;
 class BookingController extends Controller
 {
     use ApiResponseTrait;
+    
     private $bookingService;
+    
     public function __construct(BookingService $bookingService)
     {
         $this->bookingService = $bookingService;
@@ -44,10 +48,17 @@ class BookingController extends Controller
         }
     }
 
+    /**
+     * إنشاء حجز جديد
+     */
     public function store(StoreBookingRequest $request): JsonResponse
     {
         try {
+            // إنشاء الحجز
             $booking = $this->bookingService->createBooking($request);
+
+            // 🔥 إطلاق Event للإشعار
+            event(new BookingCreated($booking));
 
             return $this->successResponse(
                 'Booking created successfully',
@@ -85,6 +96,7 @@ class BookingController extends Controller
             if ($booking->user_id !== Auth::id()) {
                 return $this->errorResponse('Unauthorized', 403, null);
             }
+            
             return $this->successResponse(
                 'Booking details retrieved',
                 200,
@@ -96,19 +108,21 @@ class BookingController extends Controller
     }
 
     /**
-     * Cancel a booking
-     * @param Booking $booking
-     * @return JsonResponse
+     * إلغاء الحجز
      */
     public function cancel(Booking $booking): JsonResponse
     {
         try {
             // Check authorization
-            if ($booking->user_id !== Auth::id()) {
+            if ($booking->user_id !== auth()->id()) {
                 return $this->errorResponse('Unauthorized', 403, null);
             }
 
+            // إلغاء الحجز
             $this->bookingService->cancelBooking($booking);
+
+            // 🔥 إطلاق Event للإشعار
+            event(new BookingCancelled($booking));
 
             return $this->successResponse('Booking cancelled successfully', 200, $booking);
         } catch (\Exception $e) {

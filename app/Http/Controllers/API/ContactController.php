@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\ContactMessageReceived;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ContactRequest;
 use App\Models\ContactMessage;
-use App\Notifications\ContactMessageReceived;
-use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Log;
 
 class ContactController extends Controller
 {
@@ -32,7 +32,9 @@ class ContactController extends Controller
                 'ip_address' => $request->ip()
             ]);
 
-           
+            // 🔥 إطلاق Event لإرسال الإشعار للأدمن
+            event(new ContactMessageReceived($message));
+
             // تسجيل محاولة الإرسال
             RateLimiter::hit($key, 300); // 5 دقائق
 
@@ -42,9 +44,25 @@ class ContactController extends Controller
             ], 201);
 
         } catch (\Exception $e) {
+            // 🔍 طباعة تفاصيل الخطأ في الـ Log
+            Log::error('Contact Form Error: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            // 🔍 طباعة الخطأ مباشرة (للتطوير فقط)
+            \Log::debug($e);
+            
+            // ⚠️ للتطوير فقط: إرجاع تفاصيل الخطأ في الـ Response
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء إرسال الرسالة. يرجى المحاولة مرة أخرى.'
+                'message' => 'حدث خطأ أثناء إرسال الرسالة. يرجى المحاولة مرة أخرى.',
+                'error' => config('app.debug') ? $e->getMessage() : null, // يظهر فقط في وضع التطوير
+                'details' => config('app.debug') ? [
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                ] : null
             ], 500);
         }
     }

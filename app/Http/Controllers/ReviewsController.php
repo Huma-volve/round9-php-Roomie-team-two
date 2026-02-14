@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ReviewCreated;
 use App\Http\Requests\ReviewRequest;
 use App\Models\Booking;
 use App\Models\Review;
@@ -11,6 +12,10 @@ use Illuminate\Http\Request;
 class ReviewsController extends Controller
 {
     use ApiResponseTrait;
+
+    /**
+     * إنشاء مراجعة جديدة
+     */
     public function create($booking_id, ReviewRequest $request)
     {
         $booking = Booking::find($booking_id);
@@ -22,22 +27,41 @@ class ReviewsController extends Controller
         if ($booking->check_out >= now()) {
             return $this->errorResponse('You cannot add a review until the stay has ended.');
         }
-        $data = [
+
+        // التحقق من عدم وجود مراجعة سابقة لنفس الـ Property
+        $existingReview = Review::where('user_id', auth()->id())
+            ->where('property_id', $booking->property_id)
+            ->exists();
+
+        if ($existingReview) {
+            return $this->errorResponse('You have already reviewed this property.', 400);
+        }
+
+        // إنشاء المراجعة
+        $review = Review::create([
             'user_id' => auth()->id(),
             'property_id' => $booking->property_id,
             'comment' => $request->comment,
             'rating' => $request->rating
-        ];
-        $review = Review::create($data);
-        return $this->successResponse($message = 'Review added successfully.', $status = 201,  $review);
+        ]);
+
+        // 🔥 إطلاق Event لإرسال إشعار للأدمن
+        event(new ReviewCreated($review));
+
+        return $this->successResponse('Review added successfully.', 201, $review);
     }
 
+    /**
+     * تحديث مراجعة
+     */
     public function update($review_id, ReviewRequest $request)
     {
-        $review = Review::find($review_id);
+        $review = Review::where('id', $review_id)
+            ->where('user_id', auth()->id())
+            ->first();
 
         if (!$review) {
-            return $this->errorResponse('Review not found.', 404);
+            return $this->errorResponse('Review not found or unauthorized.', 404);
         }
 
         $review->update([
@@ -48,12 +72,17 @@ class ReviewsController extends Controller
         return $this->successResponse('Review updated successfully.', 200, $review);
     }
 
+    /**
+     * حذف مراجعة
+     */
     public function delete($review_id)
     {
-        $review = Review::find($review_id);
+        $review = Review::where('id', $review_id)
+            ->where('user_id', auth()->id())
+            ->first();
 
         if (!$review) {
-            return $this->errorResponse('Review not found.', 404);
+            return $this->errorResponse('Review not found or unauthorized.', 404);
         }
 
         $review->delete();
@@ -61,13 +90,16 @@ class ReviewsController extends Controller
         return $this->successResponse('Review deleted successfully.', 200);
     }
 
-
+    /**
+     * جلب مراجعات المستخدم
+     */
     public function myReviews(Request $request)
     {
         $userId = auth()->id();
 
         $reviews = Review::where('user_id', $userId)
             ->with('property')
+            ->latest()
             ->get();
 
         return $this->successResponse('User reviews fetched successfully.', 200, $reviews);
