@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
     {
         // Run individual seeders in correct order
         $this->call([
-            UserSeeder::class,
+           // UserSeeder::class,
             PropertySeeder::class,
             PropertyImageSeeder::class,
             RoomSeeder::class,
@@ -30,6 +30,8 @@ class DatabaseSeeder extends Seeder
             MessageSeeder::class,
             ReviewSeeder::class,
         ]);
+
+
 
         // Conversations and messages are now handled by ConversationSeeder and MessageSeeder
 
