@@ -24,11 +24,6 @@ class SearchController extends Controller
             return response()->json([
                 'message' => 'Search completed successfully',
                 'data' => [
-                    // 'current_page' => $result->currentPage(),
-                    // 'per_page' => $result->perPage(),
-                    // 'total' => $result->total(),
-                    // 'last_page' => $result->lastPage(),
-                    // 'items' => $result->items(),
                     $result 
                 ],
             ], 200);
