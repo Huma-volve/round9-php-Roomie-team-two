@@ -13,9 +13,6 @@ class ReviewsController extends Controller
 {
     use ApiResponseTrait;
 
-    /**
-     * إنشاء مراجعة جديدة
-     */
     public function create($booking_id, ReviewRequest $request)
     {
         $booking = Booking::find($booking_id);
@@ -28,15 +25,6 @@ class ReviewsController extends Controller
             return $this->errorResponse('You cannot add a review until the stay has ended.');
         }
 
-        // التحقق من عدم وجود مراجعة سابقة لنفس الـ Property
-        $existingReview = Review::where('user_id', auth()->id())
-            ->where('property_id', $booking->property_id)
-            ->exists();
-
-        if ($existingReview) {
-            return $this->errorResponse('You have already reviewed this property.', 400);
-        }
-
         // إنشاء المراجعة
         $review = Review::create([
             'user_id' => auth()->id(),
@@ -44,6 +32,10 @@ class ReviewsController extends Controller
             'comment' => $request->comment,
             'rating' => $request->rating
         ]);
+        // التحقق من عدم وجود مراجعة سابقة لنفس الـ Property
+        $existingReview = Review::where('user_id', auth()->id())
+            ->where('property_id', $booking->property_id)
+            ->exists();
 
         // 🔥 إطلاق Event لإرسال إشعار للأدمن
         event(new ReviewCreated($review));
