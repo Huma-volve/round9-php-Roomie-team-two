@@ -26,10 +26,19 @@ class RoomController extends Controller
 
         if ($request->has('search')) {
             $search = $request->get('search');
-            $query->where('room_number', 'like', "%{$search}%");
+
+            $query->where(function ($q) use ($search) {
+                // Search by room_number
+                $q->where('room_number', 'like', "%{$search}%");
+
+                // Search by property name (title)
+                $q->orWhereHas('property', function ($q2) use ($search) {
+                    $q2->where('title', 'like', "%{$search}%");
+                });
+            });
         }
 
-        $rooms = $query->paginate(10); 
+        $rooms = $query->paginate(10);
 
         return view("admin.rooms.index", compact("rooms"));
     }
