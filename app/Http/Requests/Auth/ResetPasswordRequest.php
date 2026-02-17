@@ -24,7 +24,7 @@ class ResetPasswordRequest extends FormRequest
     {
         return [
             'token' => ['required'],
-            'email' => ['required', 'email'],
+            'email' => ['required', 'email', 'exists:users,email'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ];
     }
@@ -35,6 +35,7 @@ class ResetPasswordRequest extends FormRequest
             'token.required' => 'Token is required.',
             'email.required' => 'Email is required.',
             'email.email' => 'Email must be a valid email address.',
+            'email.exists' => 'Email does not exist.',
             'password.required' => 'Password is required.',
             'password.confirmed' => 'Password confirmation does not match.',
         ];
