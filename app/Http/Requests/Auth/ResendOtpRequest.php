@@ -22,7 +22,7 @@ class ResendOtpRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'email'],
+            'email' => ['required', 'email', 'exists:users,email'],
             'type' => ['required', 'string', 'in:register,reset_password'],
         ];
     }
@@ -33,6 +33,7 @@ class ResendOtpRequest extends FormRequest
             'email.required' => 'Email is required.',
             'email.email' => 'Invalid email format.',
             'type.required' => 'OTP type is required.',
+            'email.exists' => 'Email does not exist.',
             'type.in' => 'Type must be either register or reset_password.',
         ];
     }
