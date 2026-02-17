@@ -48,7 +48,7 @@ class SearchServices
             ->where('rooms.status', 'available');
 
        
-        $data = $query->get();
+        $data = $query->paginate(10);
 
         // Save search history if user is authenticated
         if (Auth::check()) {

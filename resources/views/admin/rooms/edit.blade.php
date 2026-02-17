@@ -144,6 +144,26 @@
             </div>
 
 
+                                 <!-- Room Size -->
+            <div class="mb-6">
+             <label for="size_in_sq_m" class="block text-sm font-medium text-gray-700 mb-2">
+                Room Size (m²)
+                 </label>
+                 <input 
+                  type="number" 
+                   step="0.1" 
+                   min="1"
+                   name="size_in_sq_m" 
+                   id="size_in_sq_m" 
+                   value="{{ old('size_in_sq_m', $room->size_in_sq_m) }}"
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                 >
+                @error('size_in_sq_m')
+              <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                 @enderror
+            </div>
+
+
         <!-- Main Image -->
         <div class="mb-6">
             <label class="block text-sm font-medium text-gray-700 mb-2">Main Image</label>
