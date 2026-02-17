@@ -14,24 +14,8 @@ class RoomSeeder extends Seeder
      */
     public function run(): void
     {
-        $apartmentProperties = Property::where('rent_type', 'apartment')->get();
-        $roomProperties = Property::where('rent_type', 'room')->get();
 
-        foreach ($apartmentProperties as $property) {
-            Room::create([
-                'property_id' => $property->id,
-                'room_number' => 'A' . rand(100, 999),
-                'room_type' => 'private',
-                'price_per_night' => rand(6000, 9000),
-                'num_beds' => rand(1, 2),
-                'room_bed_type' => 'queen',
-                'size_in_sq_m' => rand(20, 50),
-                'capacity' => rand(2, 4),
-                'current_roomates' => 0,
-                'room_amenities' => json_encode(['WiFi', 'AC']),
-                'status' => 'available',
-            ]);
-        }
+        $roomProperties = Property::where('rent_type', 'room')->get();
 
         foreach ($roomProperties as $property) {
             Room::create([

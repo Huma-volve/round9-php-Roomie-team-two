@@ -21,13 +21,13 @@ class DatabaseSeeder extends Seeder
     {
         // Run individual seeders in correct order
         $this->call([
-           // UserSeeder::class,
+            UserSeeder::class,
             PropertySeeder::class,
             PropertyImageSeeder::class,
             RoomSeeder::class,
             SearchHistorySeeder::class,
-            ConversationSeeder::class,
-            MessageSeeder::class,
+            // ConversationSeeder::class,
+            // MessageSeeder::class,
             ReviewSeeder::class,
         ]);
 
