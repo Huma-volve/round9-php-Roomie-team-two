@@ -22,7 +22,7 @@ class VerifyResetOtpRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'email'],
+            'email' => ['required', 'email', 'exists:users,email'],
             'otp_code' => ['required', 'string'],
         ];
     }
@@ -32,6 +32,7 @@ class VerifyResetOtpRequest extends FormRequest
         return [
             'email.required' => 'Email is required.',
             'email.email' => 'Invalid email format.',
+            'email.exists' => 'Email does not exist.',
             'otp_code.required' => 'OTP code is required.',
         ];
     }
